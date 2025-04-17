@@ -21,7 +21,7 @@ const featuresList = [
   {
     icon: <LineChart className="h-8 w-8 text-accent" />,
     title: "Real-time Analytics",
-    description: "Process and analyze user behavior as it happens through Fluvio's streaming platform.",
+    description: "Process and analyze user behavior as it happens.",
   },
   {
     icon: <Lightbulb className="h-8 w-8 text-amber-500" />,

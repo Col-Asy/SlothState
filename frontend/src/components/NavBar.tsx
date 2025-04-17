@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Menu, X } from 'lucide-react';
 
@@ -12,7 +12,7 @@ const NavBar = () => {
           <div className="flex items-center">
             <div className="flex-shrink-0">
               <a href="#" className="flex items-center">
-                <span className="text-lg font-bold">SlothState</span>
+                <span className="text-lg font-bold">SlothState<span className='text-blue-500'>.</span></span>
               </a>
             </div>
           </div>
@@ -22,7 +22,6 @@ const NavBar = () => {
               <li><a href="#features" className="text-foreground/80 hover:text-foreground transition-colors">Features</a></li>
               <li><a href="#how-it-works" className="text-foreground/80 hover:text-foreground transition-colors">How It Works</a></li>
               <li><a href="#use-cases" className="text-foreground/80 hover:text-foreground transition-colors">Use Cases</a></li>
-              <li><a href="#pricing" className="text-foreground/80 hover:text-foreground transition-colors">Pricing</a></li>
             </ul>
           </nav>
           

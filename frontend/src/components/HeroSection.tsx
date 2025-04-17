@@ -35,7 +35,7 @@ const HeroSection = () => {
           </p>
           <div className="flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-4">
             <Button size="lg" className="px-8">
-              Start Free Trial
+              Start Using
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
             <Button size="lg" variant="outline">

@@ -12,7 +12,7 @@ const steps = [
   {
     number: "02",
     title: "Stream",
-    description: "Data flows through Fluvio's streaming platform for real-time processing and analysis.",
+    description: "Data flows through streaming platform for real-time processing and analysis.",
     color: "from-indigo-500 to-purple-600"
   },
   {

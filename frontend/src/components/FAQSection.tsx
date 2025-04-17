@@ -1,5 +1,3 @@
-
-import React from 'react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { HelpCircle } from 'lucide-react';
 
@@ -53,7 +51,7 @@ const FAQSection = () => {
             {faqs.map((faq, index) => (
               <AccordionItem key={index} value={`item-${index}`} className="border border-border rounded-lg overflow-hidden bg-card/30">
                 <AccordionTrigger className="px-6 py-4 text-lg font-medium hover:no-underline flex items-center">
-                  <HelpCircle className="mr-3 h-5 w-5 text-primary flex-shrink-0" />
+                  <HelpCircle className="mr-3 h-5 w-5 text-primary flex-shrink-0 transition-all" />
                   <span>{faq.question}</span>
                 </AccordionTrigger>
                 <AccordionContent className="px-6 pb-4 text-foreground/80">
