@@ -1,0 +1,302 @@
+[
+  {
+    "type": "scroll",
+    "scrollY": 64.80000305175781,
+    "direction": "down",
+    "userId": "8dm9gmxd58t",
+    "timestamp": "2025-04-17T13:53:22.734Z",
+    "url": "http://localhost:8080/"
+  },
+  {
+    "type": "scroll",
+    "scrollY": 123.19999694824219,
+    "direction": "down",
+    "userId": "8dm9gmxd58t",
+    "timestamp": "2025-04-17T13:53:22.810Z",
+    "url": "http://localhost:8080/"
+  },
+  {
+    "type": "scroll",
+    "scrollY": 178.39999389648438,
+    "direction": "down",
+    "userId": "8dm9gmxd58t",
+    "timestamp": "2025-04-17T13:53:22.852Z",
+    "url": "http://localhost:8080/"
+  },
+  {
+    "type": "scroll",
+    "scrollY": 231.1999969482422,
+    "direction": "down",
+    "userId": "8dm9gmxd58t",
+    "timestamp": "2025-04-17T13:53:22.921Z",
+    "url": "http://localhost:8080/"
+  },
+  {
+    "type": "scroll",
+    "scrollY": 282.3999938964844,
+    "direction": "down",
+    "userId": "8dm9gmxd58t",
+    "timestamp": "2025-04-17T13:53:23.034Z",
+    "url": "http://localhost:8080/"
+  },
+  {
+    "type": "scroll",
+    "scrollY": 346.3999938964844,
+    "direction": "down",
+    "userId": "8dm9gmxd58t",
+    "timestamp": "2025-04-17T13:53:23.102Z",
+    "url": "http://localhost:8080/"
+  },
+  {
+    "type": "scroll",
+    "scrollY": 403.20001220703125,
+    "direction": "down",
+    "userId": "8dm9gmxd58t",
+    "timestamp": "2025-04-17T13:53:23.115Z",
+    "url": "http://localhost:8080/"
+  },
+  {
+    "type": "scroll",
+    "scrollY": 484.79998779296875,
+    "direction": "down",
+    "userId": "8dm9gmxd58t",
+    "timestamp": "2025-04-17T13:53:23.130Z",
+    "url": "http://localhost:8080/"
+  },
+  {
+    "type": "scroll",
+    "scrollY": 535.2000122070312,
+    "direction": "down",
+    "userId": "8dm9gmxd58t",
+    "timestamp": "2025-04-17T13:53:23.157Z",
+    "url": "http://localhost:8080/"
+  },
+  {
+    "type": "scroll",
+    "scrollY": 599.2000122070312,
+    "direction": "down",
+    "userId": "8dm9gmxd58t",
+    "timestamp": "2025-04-17T13:53:23.178Z",
+    "url": "http://localhost:8080/"
+  },
+  {
+    "type": "scroll",
+    "scrollY": 656.7999877929688,
+    "direction": "down",
+    "userId": "8dm9gmxd58t",
+    "timestamp": "2025-04-17T13:53:23.205Z",
+    "url": "http://localhost:8080/"
+  },
+  {
+    "type": "scroll",
+    "scrollY": 708.7999877929688,
+    "direction": "down",
+    "userId": "8dm9gmxd58t",
+    "timestamp": "2025-04-17T13:53:23.247Z",
+    "url": "http://localhost:8080/"
+  },
+  {
+    "type": "scroll",
+    "scrollY": 790.4000244140625,
+    "direction": "down",
+    "userId": "8dm9gmxd58t",
+    "timestamp": "2025-04-17T13:53:23.323Z",
+    "url": "http://localhost:8080/"
+  },
+  {
+    "type": "scroll",
+    "scrollY": 842.4000244140625,
+    "direction": "down",
+    "userId": "8dm9gmxd58t",
+    "timestamp": "2025-04-17T13:53:23.399Z",
+    "url": "http://localhost:8080/"
+  },
+  {
+    "type": "scroll",
+    "scrollY": 910.4000244140625,
+    "direction": "down",
+    "userId": "8dm9gmxd58t",
+    "timestamp": "2025-04-17T13:53:23.455Z",
+    "url": "http://localhost:8080/"
+  },
+  {
+    "type": "scroll",
+    "scrollY": 964,
+    "direction": "down",
+    "userId": "8dm9gmxd58t",
+    "timestamp": "2025-04-17T13:53:23.469Z",
+    "url": "http://localhost:8080/"
+  },
+  {
+    "type": "scroll",
+    "scrollY": 1027.199951171875,
+    "direction": "down",
+    "userId": "8dm9gmxd58t",
+    "timestamp": "2025-04-17T13:53:23.490Z",
+    "url": "http://localhost:8080/"
+  },
+  {
+    "type": "scroll",
+    "scrollY": 1078.4000244140625,
+    "direction": "down",
+    "userId": "8dm9gmxd58t",
+    "timestamp": "2025-04-17T13:53:23.559Z",
+    "url": "http://localhost:8080/"
+  },
+  {
+    "type": "scroll",
+    "scrollY": 1128.800048828125,
+    "direction": "down",
+    "userId": "8dm9gmxd58t",
+    "timestamp": "2025-04-17T13:53:23.733Z",
+    "url": "http://localhost:8080/"
+  },
+  {
+    "type": "scroll",
+    "scrollY": 1191.199951171875,
+    "direction": "down",
+    "userId": "8dm9gmxd58t",
+    "timestamp": "2025-04-17T13:53:23.878Z",
+    "url": "http://localhost:8080/"
+  },
+  {
+    "type": "scroll",
+    "scrollY": 1286.4000244140625,
+    "direction": "down",
+    "userId": "8dm9gmxd58t",
+    "timestamp": "2025-04-17T13:53:23.906Z",
+    "url": "http://localhost:8080/"
+  },
+  {
+    "type": "scroll",
+    "scrollY": 1343.199951171875,
+    "direction": "down",
+    "userId": "8dm9gmxd58t",
+    "timestamp": "2025-04-17T13:53:23.920Z",
+    "url": "http://localhost:8080/"
+  },
+  {
+    "type": "scroll",
+    "scrollY": 1400,
+    "direction": "down",
+    "userId": "8dm9gmxd58t",
+    "timestamp": "2025-04-17T13:53:23.962Z",
+    "url": "http://localhost:8080/"
+  },
+  {
+    "type": "scroll",
+    "scrollY": 1454.4000244140625,
+    "direction": "down",
+    "userId": "8dm9gmxd58t",
+    "timestamp": "2025-04-17T13:53:24.003Z",
+    "url": "http://localhost:8080/"
+  },
+  {
+    "type": "scroll",
+    "scrollY": 1504.800048828125,
+    "direction": "down",
+    "userId": "8dm9gmxd58t",
+    "timestamp": "2025-04-17T13:53:24.059Z",
+    "url": "http://localhost:8080/"
+  },
+  {
+    "type": "scroll",
+    "scrollY": 1556,
+    "direction": "down",
+    "userId": "8dm9gmxd58t",
+    "timestamp": "2025-04-17T13:53:24.142Z",
+    "url": "http://localhost:8080/"
+  },
+  {
+    "type": "scroll",
+    "scrollY": 1606.4000244140625,
+    "direction": "down",
+    "userId": "8dm9gmxd58t",
+    "timestamp": "2025-04-17T13:53:24.267Z",
+    "url": "http://localhost:8080/"
+  },
+  {
+    "type": "scroll",
+    "scrollY": 1664.800048828125,
+    "direction": "down",
+    "userId": "8dm9gmxd58t",
+    "timestamp": "2025-04-17T13:53:24.350Z",
+    "url": "http://localhost:8080/"
+  },
+  {
+    "type": "scroll",
+    "scrollY": 1726.4000244140625,
+    "direction": "down",
+    "userId": "8dm9gmxd58t",
+    "timestamp": "2025-04-17T13:53:24.379Z",
+    "url": "http://localhost:8080/"
+  },
+  {
+    "type": "scroll",
+    "scrollY": 1778.4000244140625,
+    "direction": "down",
+    "userId": "8dm9gmxd58t",
+    "timestamp": "2025-04-17T13:53:24.475Z",
+    "url": "http://localhost:8080/"
+  },
+  {
+    "type": "click",
+    "element": {
+      "tagName": "DIV",
+      "className": "max-w-3xl mx-auto text-center mb-16",
+      "text": "How It WorksStreamlined process, powerful resultsO"
+    },
+    "position": {
+      "x": 830,
+      "y": 398
+    },
+    "userId": "8dm9gmxd58t",
+    "timestamp": "2025-04-17T13:53:28.378Z",
+    "url": "http://localhost:8080/"
+  },
+  {
+    "type": "click",
+    "element": {
+      "tagName": "H2",
+      "className": "text-3xl md:text-4xl font-bold mb-6",
+      "text": "Streamlined process, powerful results"
+    },
+    "position": {
+      "x": 1093,
+      "y": 464
+    },
+    "userId": "8dm9gmxd58t",
+    "timestamp": "2025-04-17T13:53:30.494Z",
+    "url": "http://localhost:8080/"
+  },
+  {
+    "type": "click",
+    "element": {
+      "tagName": "P",
+      "className": "text-xl text-foreground/80",
+      "text": "Our end-to-end solution seamlessly integrates with"
+    },
+    "position": {
+      "x": 840,
+      "y": 510
+    },
+    "userId": "8dm9gmxd58t",
+    "timestamp": "2025-04-17T13:53:32.501Z",
+    "url": "http://localhost:8080/"
+  },
+  {
+    "type": "click",
+    "element": {
+      "tagName": "P",
+      "className": "text-xl text-foreground/80",
+      "text": "Our end-to-end solution seamlessly integrates with"
+    },
+    "position": {
+      "x": 840,
+      "y": 510
+    },
+    "userId": "8dm9gmxd58t",
+    "timestamp": "2025-04-17T13:53:32.958Z",
+    "url": "http://localhost:8080/"
+  }
+]
