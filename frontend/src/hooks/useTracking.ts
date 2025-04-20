@@ -1,3 +1,4 @@
+// frontend/src/hooks/useTracking.ts
 import { useEffect, useRef } from "react";
 
 const getOrCreateUserId = (): string => {
@@ -36,7 +37,6 @@ export const useTracking = () => {
   };
 
   useEffect(() => {
-    // Click tracking
     const handleClick = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
       trackEvent({
@@ -51,7 +51,6 @@ export const useTracking = () => {
       });
     };
 
-    // Scroll tracking (throttled)
     let lastScrollY = window.scrollY;
     const handleScroll = () => {
       const currentY = window.scrollY;
@@ -68,21 +67,17 @@ export const useTracking = () => {
     document.addEventListener("click", handleClick);
     window.addEventListener("scroll", handleScroll);
 
-    // Batch sending interval
     const interval = setInterval(sendBatch, 5000);
-
-    // Flush buffer on unload
     const handleUnload = () => {
       if (eventBuffer.current.length > 0) {
         navigator.sendBeacon(
           "http://localhost:4000/api/track",
           JSON.stringify(eventBuffer.current)
         );
-        eventBuffer.current = [];
       }
     };
-    window.addEventListener("beforeunload", handleUnload);
 
+    window.addEventListener("beforeunload", handleUnload);
     return () => {
       document.removeEventListener("click", handleClick);
       window.removeEventListener("scroll", handleScroll);

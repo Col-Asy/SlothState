@@ -1,73 +1,98 @@
-# Welcome to your Lovable project
+# SlothState
 
-## Project info
+This is the frontend codebase for [SlothState](https://sloth-state.vercel.app/), built with [Vite](https://vitejs.dev/), TypeScript, and React. It features a modular, scalable structure and supports modern frontend development best practices.
 
-**URL**: https://lovable.dev/projects/16af3f34-e454-45c4-99f5-7967bf167d2b
+---
 
-## How can I edit this code?
+## 🚀 Live Site
 
-There are several ways of editing your application.
+**Access the deployed frontend directly at:**  
+[https://sloth-state.vercel.app/](https://sloth-state.vercel.app/)
 
-**Use Lovable**
+---
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/16af3f34-e454-45c4-99f5-7967bf167d2b) and start prompting.
+## 📁 Directory Structure
 
-Changes made via Lovable will be committed automatically to this repo.
+```
+frontend/
+├── public/                   # Static assets
+├── src/
+│   ├── components/           # Reusable UI components
+│   ├── context/              # React context providers
+│   ├── hooks/                # Custom React hooks (e.g., useTracking)
+│   ├── lib/                  # Utility libraries and helpers
+│   ├── pages/                # Page-level components and routes
+│   ├── App.css               # App-specific styles
+│   ├── App.tsx               # Main application component
+│   ├── index.css             # Global styles
+│   ├── main.tsx              # Entry point
+│   └── vite-env.d.ts         # Vite/TypeScript environment types
+├── index.html                # HTML template
+├── package.json              # Project metadata and scripts
+├── tailwind.config.ts        # Tailwind CSS configuration (if used)
+├── tsconfig.json             # TypeScript configuration
+├── vite.config.ts            # Vite configuration
+└── ...                       # Other config and lock files
+```
 
-**Use your preferred IDE**
+---
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+## 🛠️ Getting Started
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+### 1. Install dependencies
 
-Follow these steps:
+```bash
+npm install
+```
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+### 2. Start the development server
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+```bash
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+The app will be available at [http://localhost:8080](http://localhost:8080) or the port shown in your terminal.
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### 3. Build for production
 
-**Use GitHub Codespaces**
+```bash
+npm run build
+```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+### 4. Preview the production build
 
-## What technologies are used for this project?
+```bash
+npm run preview
+```
 
-This project is built with:
+---
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## ✨ Features
 
-## How can I deploy this project?
+- **Modern React** with hooks and context
+- **TypeScript** for type safety
+- **Vite** for fast development and HMR
+- **Custom hooks** for analytics and user tracking
+- **Tailwind CSS** for styling (if configured)
+- **Modular structure** for easy scaling and maintenance
 
-Simply open [Lovable](https://lovable.dev/projects/16af3f34-e454-45c4-99f5-7967bf167d2b) and click on Share -> Publish.
+---
 
-## Can I connect a custom domain to my Lovable project?
+## 📦 Scripts
 
-Yes, you can!
+| Command           | Description                    |
+|-------------------|-------------------------------|
+| `npm run dev`     | Start development server       |
+| `npm run build`   | Build for production           |
+| `npm run preview` | Preview production build       |
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+---
+<!-- 
+## 📄 License
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+See [LICENSE](LICENSE) for license details.
+
+--- -->
+
+**Visit:** [https://sloth-state.vercel.app/](https://sloth-state.vercel.app/)  
+for the live application.

@@ -1,7 +1,7 @@
 // backend/src/types.ts
 export interface BaseEvent {
   timestamp: string;
-  userId?: string;
+  userId: string;
   url: string;
 }
 
@@ -22,8 +22,8 @@ export interface ClickEvent extends BaseEvent {
 export interface ScrollEvent extends BaseEvent {
   type: "scroll";
   scrollY: number;
-  scrollDepth: number;
   direction: "up" | "down" | null;
+  scrollDepth?: number;
 }
 
 export type UserEvent = ClickEvent | ScrollEvent;
