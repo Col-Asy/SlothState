@@ -21,6 +21,9 @@ export const useTracking = () => {
       timestamp: new Date().toISOString(),
       url: window.location.href,
     });
+
+    // To check if the event is being tracked correctly
+    // console.log("Tracked event:", event);
   };
 
   const sendBatch = async () => {
