@@ -12,6 +12,7 @@ import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
 import AdditionalDetails from "./pages/AdditionalDetails";
 import RequireAuth from "./components/RequireAuth";
+import ProtectedRoute from "@/components/ProtectedRoute";
 
 const queryClient = new QueryClient();
 
@@ -23,10 +24,12 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <Routes>
+            {/* Public Route */}
             <Route path="/" element={<Index />} />
-            <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/signin" element={<SignIn />} />
             <Route path="/signup" element={<SignUp />} />
+
+            {/* Protected Routes */}
             <Route
               path="/additional-details"
               element={
@@ -35,7 +38,10 @@ const App = () => (
                 </RequireAuth>
               }
             />
-            <Route path="/dashboard/settings" element={<DashboardSettings />} />
+            <Route element={<ProtectedRoute />}>
+              <Route path="/dashboard" element={<Dashboard />} />
+            </Route>
+            {/* <Route path="/dashboard/settings" element={<DashboardSettings />} /> */}
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

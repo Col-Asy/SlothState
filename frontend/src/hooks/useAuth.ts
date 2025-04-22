@@ -4,6 +4,7 @@ import {
   updateProfile,
   GoogleAuthProvider,
   signInWithPopup,
+  signInWithEmailAndPassword,
 } from "firebase/auth";
 import { doc, setDoc, getDoc, writeBatch } from "firebase/firestore";
 
@@ -47,4 +48,12 @@ export const saveAdditionalDetails = async (username: string, bio: string) => {
   });
 
   await batch.commit();
+};
+
+export const signIn = (email: string, password: string) =>
+  signInWithEmailAndPassword(auth, email, password);
+
+export const signInWithGoogle = async () => {
+  const provider = new GoogleAuthProvider();
+  return signInWithPopup(auth, provider);
 };
