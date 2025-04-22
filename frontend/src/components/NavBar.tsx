@@ -26,14 +26,11 @@ const NavBar = () => {
             </ul>
           </nav>
           
-          {/* Desktop Auth Buttons */}
           <div className="hidden md:flex items-center space-x-4">
             <Link to="/signin">
-              <Button variant="outline">Sign In</Button>
+              <Button variant="outline">Login</Button>
             </Link>
-            <Link to="/signup">
-              <Button>Sign Up</Button>
-            </Link>
+            <Button>Get Started</Button>
           </div>
           
           <div className="md:hidden">
@@ -52,14 +49,11 @@ const NavBar = () => {
             <a href="#how-it-works" className="block px-3 py-2 rounded-md text-foreground hover:bg-accent/10">How It Works</a>
             <a href="#use-cases" className="block px-3 py-2 rounded-md text-foreground hover:bg-accent/10">Use Cases</a>
             <a href="#pricing" className="block px-3 py-2 rounded-md text-foreground hover:bg-accent/10">Pricing</a>
-            {/* Mobile Auth Buttons */}
             <div className="flex flex-col space-y-2 mt-4 px-3 py-2">
               <Link to="/signin">
-                <Button variant="outline" className="w-full">Sign In</Button>
+                <Button variant="outline" className="w-full">Login</Button>
               </Link>
-              <Link to="/signup">
-                <Button className="w-full">Sign Up</Button>
-              </Link>
+              <Button className="w-full">Get Started</Button>
             </div>
           </div>
         </div>
