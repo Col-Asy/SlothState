@@ -31,7 +31,7 @@ export const useTracking = () => {
     const batch = [...eventBuffer.current];
     eventBuffer.current = [];
     try {
-      await fetch("http://localhost:4000/api/track", {
+      await fetch(`${import.meta.env.VITE_SERVER_BACKEND_URL}/api/track`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(batch),
@@ -74,7 +74,7 @@ export const useTracking = () => {
     const handleUnload = () => {
       if (eventBuffer.current.length > 0) {
         navigator.sendBeacon(
-          "http://localhost:4000/api/track",
+          `${import.meta.env.VITE_SERVER_BACKEND_URL}/api/track`,
           JSON.stringify(eventBuffer.current)
         );
       }

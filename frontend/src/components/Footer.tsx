@@ -8,7 +8,7 @@ const Footer = () => {
         <div className="grid grid-cols-2 md:grid-cols-5 gap-8 mb-8">
           <div className="col-span-3 flex md:block flex-col justify-center items-center">
             <div className="flex items-center mb-4">
-              <span className="text-lg font-bold">SlothState</span>
+              <span className="text-lg font-bold">SlothState<span className='text-blue-600'>.</span></span>
             </div>
             <p className="text-foreground/70 mb-4 max-w-xs text-center md:text-left">
               Transform user experience with real-time screen analytics and AI-powered optimization.

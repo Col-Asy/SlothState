@@ -8,8 +8,10 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Dashboard from "./pages/Dashboard";
 import DashboardSettings from "./pages/DashboardSettings";
-import SignIn from './pages/SignIn';
-import SignUp from './pages/SignUp';
+import SignIn from "./pages/SignIn";
+import SignUp from "./pages/SignUp";
+import AdditionalDetails from "./pages/AdditionalDetails";
+import RequireAuth from "./components/RequireAuth";
 
 const queryClient = new QueryClient();
 
@@ -25,6 +27,14 @@ const App = () => (
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/signin" element={<SignIn />} />
             <Route path="/signup" element={<SignUp />} />
+            <Route
+              path="/additional-details"
+              element={
+                <RequireAuth>
+                  <AdditionalDetails />
+                </RequireAuth>
+              }
+            />
             <Route path="/dashboard/settings" element={<DashboardSettings />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
