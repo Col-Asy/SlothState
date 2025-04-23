@@ -1,23 +1,15 @@
 // frontend/src/hooks/useTracking.ts
 import { useEffect, useRef } from "react";
-
-const getOrCreateUserId = (): string => {
-  let id = localStorage.getItem("tracking_user_id");
-  if (!id) {
-    id = Math.random().toString(36).substring(2, 15);
-    localStorage.setItem("tracking_user_id", id);
-  }
-  return id;
-};
+import { getOrCreateSessionId } from "@/utils/session";
 
 export const useTracking = () => {
   const eventBuffer = useRef<any[]>([]);
-  const userId = useRef<string>(getOrCreateUserId());
+  const sessionId = getOrCreateSessionId();
 
   const trackEvent = (event: any) => {
     eventBuffer.current.push({
       ...event,
-      userId: userId.current,
+      sessionId: sessionId,
       timestamp: new Date().toISOString(),
       url: window.location.href,
     });
