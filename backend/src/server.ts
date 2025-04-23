@@ -3,14 +3,23 @@ import express, { Request, Response } from "express";
 import cors from "cors";
 import fs from "fs";
 import path from "path";
-import { UserEvent } from "./types";
+import { SessionData, UserEvent } from "./types";
 import { analyzeUserInteractions } from "./utils/groqClient";
 
 const app = express();
-const PORT = process.env.PORT || 4000;
+const PORT = process.env.PORT;
+const SESSION_LIFETIME = 24 * 60 * 60 * 1000;
 
 // Middleware
-app.use(cors());
+app.use(cors()); // Allow CORS for all origins - good for development
+
+// CORS configuration for production
+// const corsOptions = {
+//   origin: ["http://localhost:8080", "https://your-production-frontend.com"],
+//   optionsSuccessStatus: 200
+// };
+// app.use(cors(corsOptions));
+
 app.use(express.json());
 
 // Store events in memory for quick access
@@ -40,27 +49,62 @@ const saveEvents = () => {
   console.log(`Saved ${events.length} events to storage`);
 };
 
+const isValidSessionId = (sessionId: string): boolean => {
+  // Session ID format: {timestamp}-{random 32 hex chars}
+  const SESSION_LIFETIME = 24 * 60 * 60 * 1000; // 24 hours
+
+  const parts = sessionId.split("-");
+  if (parts.length !== 2) return false;
+
+  const [timestampStr, randomPart] = parts;
+
+  // Validate timestamp
+  const timestamp = parseInt(timestampStr, 10);
+  if (isNaN(timestamp)) return false;
+
+  // Check expiration
+  if (Date.now() - timestamp > SESSION_LIFETIME) return false;
+
+  // Validate random part format
+  return /^[a-f0-9]{32}$/.test(randomPart);
+};
+
 // API Routes
+// Update the route handler with proper typing
+// @ts-ignore
 app.post("/api/track", (req: Request, res: Response) => {
-  // Check if we received an array (batch) or single event
-  const eventData = req.body;
-  const eventsToAdd = Array.isArray(eventData) ? eventData : [eventData];
+  try {
+    const eventData = req.body;
+    const eventsToAdd = Array.isArray(eventData) ? eventData : [eventData];
 
-  // Validate and add each event
-  for (const event of eventsToAdd) {
-    if (!event.type || !event.timestamp) {
-      res.status(400).json({ error: "Invalid event data" });
-      return;
+    for (const event of eventsToAdd) {
+      // Check if sessionId exists and is a string
+      if (typeof event.sessionId !== "string") {
+        return res.status(400).json({ error: "Missing session ID" });
+      }
+
+      // Validate session ID format and expiration
+      if (!isValidSessionId(event.sessionId)) {
+        return res.status(400).json({ error: "Invalid session ID" });
+      }
+
+      if (!event.type || !event.timestamp) {
+        return res.status(400).json({ error: "Invalid event data" });
+      }
     }
-    events.push(event as UserEvent);
-  }
 
-  // Save events every 10 new entries
-  if (events.length % 10 === 0) {
-    saveEvents();
-  }
+    // All events valid - add to storage
+    events.push(...(eventsToAdd as UserEvent[]));
 
-  res.status(200).json({ success: true });
+    if (events.length % 10 === 0) {
+      saveEvents();
+    }
+
+    return res.status(200).json({ success: true });
+  } catch (error) {
+    console.error("Tracking error:", error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
 });
 
 app.get("/api/export", (req: Request, res: Response) => {
@@ -72,20 +116,29 @@ app.get("/api/export", (req: Request, res: Response) => {
 // NEW: Analytics endpoints
 app.get("/api/analytics", (req: Request, res: Response) => {
   try {
-    // Filter events by time range if needed
     const timeRange = req.query.timeRange as string;
     const filteredEvents = filterEventsByTimeRange(events, timeRange);
 
-    // Group events into sessions
-    const sessions = groupEventsIntoSessions(filteredEvents);
+    // Group events by session
+    const sessions = groupEventsBySession(filteredEvents);
 
-    // Calculate basic metrics
-    const metrics = calculateMetrics(filteredEvents, sessions);
+    // Calculate session metrics
+    const sessionMetrics = Object.entries(sessions).map(
+      ([sessionId, events]) => ({
+        sessionId,
+        duration: calculateSessionDuration(events),
+        eventCount: events.length,
+        firstEvent: events[0].timestamp,
+        lastEvent: events[events.length - 1].timestamp,
+      })
+    );
 
     res.status(200).json({
-      events: filteredEvents,
-      sessions,
-      metrics,
+      totalSessions: sessionMetrics.length,
+      averageSessionDuration:
+        sessionMetrics.reduce((sum, m) => sum + m.duration, 0) /
+        sessionMetrics.length,
+      sessions: sessionMetrics,
     });
   } catch (error) {
     console.error("Error fetching analytics data:", error);
@@ -145,53 +198,6 @@ function filterEventsByTimeRange(
   });
 }
 
-function groupEventsIntoSessions(events: UserEvent[]): any[] {
-  // Group events by user ID
-  const sessionsByUser: Record<string, UserEvent[][]> = {};
-
-  events.forEach((event) => {
-    const userId = event.userId;
-    if (!sessionsByUser[userId]) {
-      sessionsByUser[userId] = [];
-    }
-
-    // Check if we should start a new session (30 min gap)
-    const currentSession =
-      sessionsByUser[userId][sessionsByUser[userId].length - 1];
-    if (!currentSession) {
-      sessionsByUser[userId].push([event]);
-      return;
-    }
-
-    const lastEvent = currentSession[currentSession.length - 1];
-    const timeDiff =
-      new Date(event.timestamp).getTime() -
-      new Date(lastEvent.timestamp).getTime();
-
-    // If more than 30 minutes gap, start new session
-    if (timeDiff > 30 * 60 * 1000) {
-      sessionsByUser[userId].push([event]);
-    } else {
-      currentSession.push(event);
-    }
-  });
-
-  // Flatten sessions
-  const sessions: any[] = [];
-  Object.values(sessionsByUser).forEach((userSessions) => {
-    userSessions.forEach((session) => {
-      sessions.push({
-        userId: session[0].userId,
-        duration: calculateSessionDuration(session),
-        eventCount: session.length,
-        events: session,
-      });
-    });
-  });
-
-  return sessions;
-}
-
 function calculateSessionDuration(events: UserEvent[]): number {
   if (events.length < 2) return 0;
 
@@ -202,32 +208,15 @@ function calculateSessionDuration(events: UserEvent[]): number {
   return (lastEvent - firstEvent) / 1000;
 }
 
-function calculateMetrics(events: UserEvent[], sessions: any[]): any {
-  // Basic interaction metrics
-  const clickEvents = events.filter((e) => e.type === "click");
-  const scrollEvents = events.filter((e) => e.type === "scroll");
-
-  // Get unique users
-  const uniqueUsers = new Set(events.map((e) => e.userId)).size;
-
-  // Calculate average session duration
-  const totalDuration = sessions.reduce(
-    (sum, session) => sum + session.duration,
-    0
-  );
-  const avgSessionDuration = sessions.length
-    ? totalDuration / sessions.length
-    : 0;
-
-  return {
-    totalEvents: events.length,
-    uniqueUsers,
-    sessionCount: sessions.length,
-    avgSessionDuration,
-    clickCount: clickEvents.length,
-    scrollCount: scrollEvents.length,
-    eventsPerSession: sessions.length ? events.length / sessions.length : 0,
-  };
+function groupEventsBySession(
+  events: UserEvent[]
+): Record<string, UserEvent[]> {
+  const sessions: Record<string, UserEvent[]> = {};
+  for (const event of events) {
+    if (!sessions[event.sessionId]) sessions[event.sessionId] = [];
+    sessions[event.sessionId].push(event);
+  }
+  return sessions;
 }
 
 // Start server

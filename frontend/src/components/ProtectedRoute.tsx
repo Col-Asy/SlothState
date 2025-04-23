@@ -1,12 +1,12 @@
 // src/components/ProtectedRoute.tsx
-import React from "react";
+import { useAuth } from "@/context/AuthContext";
 import { Navigate, Outlet } from "react-router-dom";
-import { auth } from "@/utils/firebase/firebase";
 
 const ProtectedRoute = () => {
-  // Checks if a user is logged in
-  const isAuthenticated = !!auth.currentUser;
-  return isAuthenticated ? <Outlet /> : <Navigate to="/signin" replace />;
+  const { user, loading } = useAuth();
+
+  if (loading) return <div>Loading...</div>;
+  return user ? <Outlet /> : <Navigate to="/signin" replace />;
 };
 
 export default ProtectedRoute;
