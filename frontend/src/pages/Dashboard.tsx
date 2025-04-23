@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -36,12 +35,11 @@ const Dashboard = () => {
         <MetricsOverview />
         
         <Tabs defaultValue="overview" className="w-full">
-          <TabsList className="grid w-full md:w-auto grid-cols-4 md:grid-cols-5">
+          <TabsList className="grid w-full md:w-auto grid-cols-4 md:grid-cols-4">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="sessions">Sessions</TabsTrigger>
             <TabsTrigger value="heatmaps">Heatmaps</TabsTrigger>
             <TabsTrigger value="insights">AI Insights</TabsTrigger>
-            <TabsTrigger value="settings" className="hidden md:inline-flex">Settings</TabsTrigger>
           </TabsList>
           
           <TabsContent value="overview" className="space-y-6 mt-6">
@@ -181,18 +179,6 @@ const Dashboard = () => {
                   <p className="text-sm text-muted-foreground">Users spend significantly more time on pages with video content. Consider adding more video explanations to key product pages.</p>
                   <div className="mt-2 text-xs text-right text-muted-foreground">Confidence: 79%</div>
                 </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-          
-          <TabsContent value="settings" className="space-y-6 mt-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Dashboard Settings</CardTitle>
-                <CardDescription>Configure your analytics preferences</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">Settings panel content will go here</p>
               </CardContent>
             </Card>
           </TabsContent>
