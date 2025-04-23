@@ -1,7 +1,7 @@
 import React from "react";
 import { Loader } from "lucide-react";
 
-const DashboardLoader: React.FC = () => (
+const LoaderComponent: React.FC = () => (
   <div className="fixed inset-0 z-30 flex items-center justify-center bg-background/80 backdrop-blur-sm transition-colors">
     <div
       className="flex flex-col items-center gap-4 rounded-xl shadow-xl p-8 glass-card"
@@ -19,10 +19,10 @@ const DashboardLoader: React.FC = () => (
         <Loader className="h-7 w-7 text-primary animate-spin-slow" />
       </div>
       <span className="text-sm font-semibold text-foreground tracking-wide select-none">
-        Loading dashboard...
+        Loading...
       </span>
     </div>
   </div>
 );
 
-export default DashboardLoader;
+export default LoaderComponent;
