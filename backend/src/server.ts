@@ -5,10 +5,30 @@ import fs from "fs";
 import path from "path";
 import { SessionData, UserEvent } from "./types";
 import { analyzeUserInteractions } from "./utils/groqClient";
+import admin from "firebase-admin";
+import { getFirestore } from "firebase-admin/firestore";
 
 const app = express();
 const PORT = process.env.PORT;
-const SESSION_LIFETIME = 24 * 60 * 60 * 1000;
+
+const serviceAccount = {
+  type: process.env.FIREBASE_TYPE!,
+  project_id: process.env.FIREBASE_PROJECT_ID!,
+  private_key_id: process.env.FIREBASE_PRIVATE_KEY_ID!,
+  private_key: process.env.FIREBASE_PRIVATE_KEY!?.replace(/\\n/g, '\n'),
+  client_email: process.env.FIREBASE_CLIENT_EMAIL!,
+  client_id: process.env.FIREBASE_CLIENT_ID!,
+  auth_uri: process.env.FIREBASE_AUTH_URI!,
+  token_uri: process.env.FIREBASE_TOKEN_URI!,
+  auth_provider_x509_cert_url: process.env.FIREBASE_AUTH_PROVIDER_X509_CERT_URL!,
+  client_x509_cert_url: process.env.FIREBASE_CLIENT_X509_CERT_URL!,
+};
+
+// Initialize Firebase Admin
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount as admin.ServiceAccount),
+});
+const db = getFirestore();
 
 // Middleware
 app.use(cors()); // Allow CORS for all origins - good for development
@@ -72,35 +92,49 @@ const isValidSessionId = (sessionId: string): boolean => {
 // API Routes
 // Update the route handler with proper typing
 // @ts-ignore
-app.post("/api/track", (req: Request, res: Response) => {
+app.post("/api/track", async (req: Request, res: Response) => {
   try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader?.startsWith("Bearer ")) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    const token = authHeader.split("Bearer ")[1];
+    const decodedToken = await admin.auth().verifyIdToken(token);
+    const uid = decodedToken.uid;
+
     const eventData = req.body;
     const eventsToAdd = Array.isArray(eventData) ? eventData : [eventData];
 
+    // Validate all events first
     for (const event of eventsToAdd) {
-      // Check if sessionId exists and is a string
-      if (typeof event.sessionId !== "string") {
-        return res.status(400).json({ error: "Missing session ID" });
+      if (!event.url) {
+        return res.status(400).json({ error: "Missing URL in event" });
       }
 
-      // Validate session ID format and expiration
-      if (!isValidSessionId(event.sessionId)) {
-        return res.status(400).json({ error: "Invalid session ID" });
-      }
+      // Check Firestore for valid integration
+      const integrationsRef = db.collection("integrations");
+      const snapshot = await integrationsRef
+        .where("uid", "==", uid)
+        .where("url", "==", event.url)
+        .where("status", "==", true)
+        .limit(1)
+        .get();
 
-      if (!event.type || !event.timestamp) {
-        return res.status(400).json({ error: "Invalid event data" });
+      if (snapshot.empty) {
+        return res.status(403).json({ 
+          error: `Unauthorized URL: ${event.url}`
+        });
       }
     }
 
-    // All events valid - add to storage
-    events.push(...(eventsToAdd as UserEvent[]));
-
-    if (events.length % 10 === 0) {
-      saveEvents();
-    }
-
+    // All events valid - proceed to store
+    events.push(...eventsToAdd as UserEvent[]);
+    
+    if (events.length % 10 === 0) saveEvents();
+    
     return res.status(200).json({ success: true });
+
   } catch (error) {
     console.error("Tracking error:", error);
     return res.status(500).json({ error: "Internal server error" });
