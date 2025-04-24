@@ -1,0 +1,49 @@
+i want to build an exe file in python with the following code as its mode of operation-
+import os
+import sys
+import time
+
+sdk_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'terminator', 'python-sdk'))
+if sdk_path not in sys.path:
+    sys.path.insert(0, sdk_path)
+
+from desktop_use import DesktopUseClient, ApiError
+
+def automate_notepad():
+    client = DesktopUseClient(base_url="http://127.0.0.1:9375")
+
+    try:
+        # 1. Open Notepad
+        print("Opening Notepad...")
+        client.open_application("notepad")
+        time.sleep(2)  # Wait for Notepad to fully open
+
+        # 2. Locate the Notepad window and the text editor
+        print("Locating Notepad window...")
+        editor = client.locator('window:Notepad')
+
+        # 3. Type text
+        print("Typing text...")
+        editor.type_text("Hello from Terminator!\nThis is a Python test.")
+
+        # 4. Open Save As dialog
+        print("Opening Save As dialog...")
+        editor.press_key("{Ctrl}s")
+
+        # 5. Locate Save As dialog and type name in filename field
+        print("Filling Save As dialog...")
+        save_dialog = client.locator('window:"Save As"').type_text("Test.txt")
+        time.sleep(2)  # Wait for the text to be typed
+
+    except ApiError as e:
+        print(f"API Error: {e}")
+    except Exception as e:
+        print(f"Unexpected error: {e}")
+
+if __name__ == "__main__":
+    automate_notepad()
+
+
+the name should be TrackInitializationSetup
+
+also it should be functioning like any other app installation setup where it asks for only the filename input in the gui and then execute the program, and should exit only when the file is saved by the user
