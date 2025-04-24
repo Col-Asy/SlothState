@@ -15,7 +15,7 @@ import RequireAuth from "./components/RequireAuth";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { AuthProvider } from "./context/AuthContext";
 import GuestRoute from "./components/GuestRoute";
-import Integrations from "./pages/Interagations";
+import Integrations from "./pages/Integrations";
 import AccountSettings from "./pages/AccountSettings";
 
 const queryClient = new QueryClient();
