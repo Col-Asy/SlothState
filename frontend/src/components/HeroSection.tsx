@@ -52,7 +52,7 @@ const HeroSection = () => {
             <div className="absolute inset-0 p-6 flex flex-col">
               <div className="flex justify-between items-center mb-6">
                 <div className="glass-card px-4 py-2 rounded-lg">
-                  <p className="text-sm font-medium">ScreenPipe Analytics</p>
+                  <p className="text-sm font-medium">SlothState Analytics</p>
                 </div>
                 <div className="flex space-x-2">
                   <div className="h-3 w-3 rounded-full bg-red-500 animate-pulse"></div>

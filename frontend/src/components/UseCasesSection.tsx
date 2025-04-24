@@ -41,7 +41,7 @@ const UseCasesSection = () => {
           </div>
           <h2 className="text-3xl md:text-4xl font-bold mb-6">Transform every aspect of your user experience</h2>
           <p className="text-xl text-foreground/80">
-            See how businesses across industries leverage ScreenPipe to improve UX and drive business results.
+            See how businesses across industries leverage SlothState to improve UX and drive business results.
           </p>
         </div>
         
@@ -67,9 +67,9 @@ const UseCasesSection = () => {
         
         <div className="mt-16 max-w-4xl mx-auto glass-card p-8 rounded-xl relative overflow-hidden">
           <div className="relative z-10">
-            <h3 className="text-2xl md:text-3xl font-bold mb-4 text-center">See ScreenPipe in action</h3>
+            <h3 className="text-2xl md:text-3xl font-bold mb-4 text-center">See SlothState in action</h3>
             <p className="text-center text-lg mb-8 text-foreground/80">
-              Watch how ScreenPipe can transform your understanding of user behavior and improve your product experience.
+              Watch how SlothState can transform your understanding of user behavior and improve your product experience.
             </p>
             <div className="flex justify-center">
               <Button size="lg" className="px-8">
