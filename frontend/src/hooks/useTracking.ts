@@ -15,7 +15,7 @@ export const useTracking = () => {
     });
 
     // To check if the event is being tracked correctly
-    // console.log("Tracked event:", event);
+    console.log("Tracked event:", event);
   };
 
   const sendBatch = async () => {
@@ -28,6 +28,8 @@ export const useTracking = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(batch),
       });
+
+      console.log(batch.length, "events sent to server");
     } catch (error) {}
   };
 
