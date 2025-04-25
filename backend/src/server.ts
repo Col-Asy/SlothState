@@ -15,12 +15,13 @@ const serviceAccount = {
   type: process.env.FIREBASE_TYPE!,
   project_id: process.env.FIREBASE_PROJECT_ID!,
   private_key_id: process.env.FIREBASE_PRIVATE_KEY_ID!,
-  private_key: process.env.FIREBASE_PRIVATE_KEY!?.replace(/\\n/g, '\n'),
+  private_key: process.env.FIREBASE_PRIVATE_KEY!?.replace(/\\n/g, "\n"),
   client_email: process.env.FIREBASE_CLIENT_EMAIL!,
   client_id: process.env.FIREBASE_CLIENT_ID!,
   auth_uri: process.env.FIREBASE_AUTH_URI!,
   token_uri: process.env.FIREBASE_TOKEN_URI!,
-  auth_provider_x509_cert_url: process.env.FIREBASE_AUTH_PROVIDER_X509_CERT_URL!,
+  auth_provider_x509_cert_url:
+    process.env.FIREBASE_AUTH_PROVIDER_X509_CERT_URL!,
   client_x509_cert_url: process.env.FIREBASE_CLIENT_X509_CERT_URL!,
 };
 
@@ -92,49 +93,78 @@ const isValidSessionId = (sessionId: string): boolean => {
 // API Routes
 // Update the route handler with proper typing
 // @ts-ignore
-app.post("/api/track", async (req: Request, res: Response) => {
+app.post("/api/track", async (req, res) => {
   try {
-    const authHeader = req.headers.authorization;
-    if (!authHeader?.startsWith("Bearer ")) {
-      return res.status(401).json({ error: "Unauthorized" });
-    }
-
-    const token = authHeader.split("Bearer ")[1];
-    const decodedToken = await admin.auth().verifyIdToken(token);
-    const uid = decodedToken.uid;
-
     const eventData = req.body;
     const eventsToAdd = Array.isArray(eventData) ? eventData : [eventData];
 
-    // Validate all events first
     for (const event of eventsToAdd) {
+      console.log("Received event:", JSON.stringify(event, null, 2));
+
       if (!event.url) {
+        console.log("Event missing URL:", event);
         return res.status(400).json({ error: "Missing URL in event" });
       }
 
-      // Check Firestore for valid integration
-      const integrationsRef = db.collection("integrations");
-      const snapshot = await integrationsRef
-        .where("uid", "==", uid)
-        .where("url", "==", event.url)
+      const originalUrl = event.url;
+      const normalizedUrl = normalizeUrl(originalUrl);
+      console.log("Original event.url:", originalUrl);
+      console.log("Normalized event URL for lookup:", normalizedUrl);
+
+      // Print all integration documents
+      const allIntegrationsSnap = await db.collection("integrations").get();
+      console.log("All integrations in DB:");
+      allIntegrationsSnap.forEach((doc) => {
+        console.log(
+          `  - id: ${doc.id}, url: ${doc.data().url}, status: ${
+            doc.data().status
+          }`
+        );
+      });
+
+      // Print all integrations with matching URL (regardless of status)
+      const urlMatchSnap = await db
+        .collection("integrations")
+        .where("url", "==", normalizedUrl)
+        .get();
+      if (urlMatchSnap.empty) {
+        console.log(
+          `No integration found with url: ${normalizedUrl} (any status)`
+        );
+      } else {
+        console.log(
+          `Integrations found with url: ${normalizedUrl} (any status):`
+        );
+        urlMatchSnap.forEach((doc) => {
+          console.log(`  - id: ${doc.id}, status: ${doc.data().status}`);
+        });
+      }
+
+      // Check for integration with matching URL and status: true
+      const activeIntegrationSnap = await db
+        .collection("integrations")
+        .where("url", "==", normalizedUrl)
         .where("status", "==", true)
         .limit(1)
         .get();
 
-      if (snapshot.empty) {
-        return res.status(403).json({ 
-          error: `Unauthorized URL: ${event.url}`
+      if (activeIntegrationSnap.empty) {
+        console.log(`No ACTIVE integration found with url: ${normalizedUrl}.`);
+        return res
+          .status(403)
+          .json({ error: `Unauthorized URL: ${originalUrl}` });
+      } else {
+        activeIntegrationSnap.forEach((doc) => {
+          console.log("Matched ACTIVE integration:", doc.id, doc.data());
         });
       }
     }
 
-    // All events valid - proceed to store
-    events.push(...eventsToAdd as UserEvent[]);
-    
+    // All events valid - proceed to store/process as usual
+    events.push(...(eventsToAdd as UserEvent[]));
     if (events.length % 10 === 0) saveEvents();
-    
+    console.log("Events successfully tracked:", eventsToAdd.length);
     return res.status(200).json({ success: true });
-
   } catch (error) {
     console.error("Tracking error:", error);
     return res.status(500).json({ error: "Internal server error" });
@@ -251,6 +281,19 @@ function groupEventsBySession(
     sessions[event.sessionId].push(event);
   }
   return sessions;
+}
+
+function normalizeUrl(url: string) {
+  try {
+    const u = new URL(url);
+    // Ensures trailing slash for root paths
+    let normalized = u.origin + u.pathname;
+    if (!normalized.endsWith("/")) normalized += "/";
+    return normalized;
+  } catch (e) {
+    console.log("Error normalizing URL:", url, e);
+    return url;
+  }
 }
 
 // Start server
