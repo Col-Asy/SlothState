@@ -1,255 +1,113 @@
 [
   {
     "type": "scroll",
-    "scrollY": 626.9000244140625,
-    "direction": "down",
-    "sessionId": "1745516546122-ac1a8d11a683da88958f168b1e2e1d90",
-    "timestamp": "2025-04-25T09:48:19.728Z",
-    "url": "http://localhost:8080/"
-  },
-  {
-    "type": "scroll",
-    "scrollY": 712.5,
-    "direction": "down",
-    "sessionId": "1745516546122-ac1a8d11a683da88958f168b1e2e1d90",
-    "timestamp": "2025-04-25T09:48:22.286Z",
-    "url": "http://localhost:8080/"
-  },
-  {
-    "type": "scroll",
-    "scrollY": 802.0999755859375,
-    "direction": "down",
-    "sessionId": "1745516546122-ac1a8d11a683da88958f168b1e2e1d90",
-    "timestamp": "2025-04-25T09:48:22.321Z",
-    "url": "http://localhost:8080/"
-  },
-  {
-    "type": "scroll",
-    "scrollY": 866.9000244140625,
-    "direction": "down",
-    "sessionId": "1745516546122-ac1a8d11a683da88958f168b1e2e1d90",
-    "timestamp": "2025-04-25T09:48:22.353Z",
-    "url": "http://localhost:8080/"
-  },
-  {
-    "type": "click",
-    "element": {
-      "tagName": "LI",
-      "text": "Features"
-    },
-    "position": {
-      "x": 356,
-      "y": 43
-    },
-    "sessionId": "1745516546122-ac1a8d11a683da88958f168b1e2e1d90",
-    "timestamp": "2025-04-25T09:48:24.659Z",
-    "url": "http://localhost:8080/"
-  },
-  {
-    "type": "scroll",
-    "scrollY": 788.5,
-    "direction": "up",
-    "sessionId": "1745516546122-ac1a8d11a683da88958f168b1e2e1d90",
-    "timestamp": "2025-04-25T09:52:16.219Z",
-    "url": "http://localhost:8080/"
-  },
-  {
-    "type": "scroll",
-    "scrollY": 726.0999755859375,
-    "direction": "up",
-    "sessionId": "1745516546122-ac1a8d11a683da88958f168b1e2e1d90",
-    "timestamp": "2025-04-25T09:52:16.256Z",
-    "url": "http://localhost:8080/"
-  },
-  {
-    "type": "scroll",
-    "scrollY": 817.2999877929688,
-    "direction": "down",
-    "sessionId": "1745516546122-ac1a8d11a683da88958f168b1e2e1d90",
-    "timestamp": "2025-04-25T09:52:17.099Z",
-    "url": "http://localhost:8080/"
-  },
-  {
-    "type": "scroll",
-    "scrollY": 883.7000122070312,
-    "direction": "down",
-    "sessionId": "1745516546122-ac1a8d11a683da88958f168b1e2e1d90",
-    "timestamp": "2025-04-25T09:52:17.132Z",
-    "url": "http://localhost:8080/"
-  },
-  {
-    "type": "scroll",
-    "scrollY": 935.7000122070312,
-    "direction": "down",
-    "sessionId": "1745516546122-ac1a8d11a683da88958f168b1e2e1d90",
-    "timestamp": "2025-04-25T09:52:17.247Z",
-    "url": "http://localhost:8080/"
-  },
-  {
-    "type": "click",
-    "element": {
-      "tagName": "A",
-      "className": "text-foreground/80 hover:text-foreground transition-colors",
-      "text": "Use Cases"
-    },
-    "position": {
-      "x": 561,
-      "y": 36
-    },
-    "sessionId": "1745516546122-ac1a8d11a683da88958f168b1e2e1d90",
-    "timestamp": "2025-04-25T09:52:23.467Z",
-    "url": "http://localhost:8080/"
-  },
-  {
-    "type": "scroll",
     "scrollY": 3325.949951171875,
     "direction": "down",
     "sessionId": "1745516546122-ac1a8d11a683da88958f168b1e2e1d90",
-    "timestamp": "2025-04-25T09:52:23.486Z",
+    "timestamp": "2025-04-25T10:10:09.517Z",
     "url": "http://localhost:8080/#use-cases"
   },
   {
     "type": "click",
     "element": {
-      "tagName": "A",
-      "className": "text-foreground/80 hover:text-foreground transition-colors",
-      "text": "Features"
+      "tagName": "SPAN",
+      "className": "text-lg font-bold",
+      "text": "SlothState."
     },
     "position": {
-      "x": 344,
-      "y": 38
+      "x": 101,
+      "y": 45
     },
     "sessionId": "1745516546122-ac1a8d11a683da88958f168b1e2e1d90",
-    "timestamp": "2025-04-25T09:52:56.074Z",
+    "timestamp": "2025-04-25T10:10:11.465Z",
     "url": "http://localhost:8080/#use-cases"
   },
   {
     "type": "scroll",
-    "scrollY": 1258.75,
+    "scrollY": 0,
     "direction": "up",
     "sessionId": "1745516546122-ac1a8d11a683da88958f168b1e2e1d90",
-    "timestamp": "2025-04-25T09:52:56.086Z",
-    "url": "http://localhost:8080/#features"
-  },
-  {
-    "type": "click",
-    "element": {
-      "tagName": "DIV",
-      "className": "flex items-center justify-between h-16",
-      "text": "SlothState.FeaturesHow It WorksUse CasesLoginGet S"
-    },
-    "position": {
-      "x": 480,
-      "y": 46
-    },
-    "sessionId": "1745516546122-ac1a8d11a683da88958f168b1e2e1d90",
-    "timestamp": "2025-04-25T09:52:58.405Z",
-    "url": "http://localhost:8080/#features"
-  },
-  {
-    "type": "click",
-    "element": {
-      "tagName": "A",
-      "className": "text-foreground/80 hover:text-foreground transition-colors",
-      "text": "How It Works"
-    },
-    "position": {
-      "x": 474,
-      "y": 42
-    },
-    "sessionId": "1745516546122-ac1a8d11a683da88958f168b1e2e1d90",
-    "timestamp": "2025-04-25T09:52:59.212Z",
-    "url": "http://localhost:8080/#features"
+    "timestamp": "2025-04-25T10:10:11.477Z",
+    "url": "http://localhost:8080/#"
   },
   {
     "type": "scroll",
-    "scrollY": 2129.949951171875,
+    "scrollY": 52,
     "direction": "down",
     "sessionId": "1745516546122-ac1a8d11a683da88958f168b1e2e1d90",
-    "timestamp": "2025-04-25T09:52:59.224Z",
-    "url": "http://localhost:8080/#how-it-works"
-  },
-  {
-    "type": "click",
-    "element": {
-      "tagName": "A",
-      "className": "text-foreground/80 hover:text-foreground transition-colors",
-      "text": "Use Cases"
-    },
-    "position": {
-      "x": 576,
-      "y": 40
-    },
-    "sessionId": "1745516546122-ac1a8d11a683da88958f168b1e2e1d90",
-    "timestamp": "2025-04-25T09:53:00.172Z",
-    "url": "http://localhost:8080/#how-it-works"
+    "timestamp": "2025-04-25T10:10:13.687Z",
+    "url": "http://localhost:8080/#"
   },
   {
     "type": "scroll",
-    "scrollY": 3325.949951171875,
+    "scrollY": 119.19999694824219,
     "direction": "down",
     "sessionId": "1745516546122-ac1a8d11a683da88958f168b1e2e1d90",
-    "timestamp": "2025-04-25T09:53:00.187Z",
-    "url": "http://localhost:8080/#use-cases"
+    "timestamp": "2025-04-25T10:10:13.721Z",
+    "url": "http://localhost:8080/#"
   },
   {
-    "type": "click",
-    "element": {
-      "tagName": "DIV",
-      "className": "inline-block rounded-full bg-primary/10 px-3 py-1 text-sm font-medium text-primary mb-4",
-      "text": "Use Cases"
-    },
-    "position": {
-      "x": 496,
-      "y": 98
-    },
+    "type": "scroll",
+    "scrollY": 180,
+    "direction": "down",
     "sessionId": "1745516546122-ac1a8d11a683da88958f168b1e2e1d90",
-    "timestamp": "2025-04-25T09:53:02.466Z",
-    "url": "http://localhost:8080/#use-cases"
+    "timestamp": "2025-04-25T10:10:13.753Z",
+    "url": "http://localhost:8080/#"
   },
   {
-    "type": "click",
-    "element": {
-      "tagName": "DIV",
-      "className": "inline-block rounded-full bg-primary/10 px-3 py-1 text-sm font-medium text-primary mb-4",
-      "text": "Use Cases"
-    },
-    "position": {
-      "x": 496,
-      "y": 98
-    },
+    "type": "scroll",
+    "scrollY": 185.60000610351562,
+    "direction": "up",
     "sessionId": "1745516546122-ac1a8d11a683da88958f168b1e2e1d90",
-    "timestamp": "2025-04-25T09:53:02.684Z",
-    "url": "http://localhost:8080/#use-cases"
+    "timestamp": "2025-04-25T10:10:15.797Z",
+    "url": "http://localhost:8080/#"
   },
   {
-    "type": "click",
-    "element": {
-      "tagName": "DIV",
-      "className": "inline-block rounded-full bg-primary/10 px-3 py-1 text-sm font-medium text-primary mb-4",
-      "text": "Use Cases"
-    },
-    "position": {
-      "x": 496,
-      "y": 98
-    },
+    "type": "scroll",
+    "scrollY": 237.60000610351562,
+    "direction": "down",
     "sessionId": "1745516546122-ac1a8d11a683da88958f168b1e2e1d90",
-    "timestamp": "2025-04-25T09:53:03.511Z",
-    "url": "http://localhost:8080/#use-cases"
+    "timestamp": "2025-04-25T10:10:13.792Z",
+    "url": "http://localhost:8080/#"
   },
   {
-    "type": "click",
-    "element": {
-      "tagName": "DIV",
-      "className": "inline-block rounded-full bg-primary/10 px-3 py-1 text-sm font-medium text-primary mb-4",
-      "text": "Use Cases"
-    },
-    "position": {
-      "x": 496,
-      "y": 98
-    },
+    "type": "scroll",
+    "scrollY": 96,
+    "direction": "up",
     "sessionId": "1745516546122-ac1a8d11a683da88958f168b1e2e1d90",
-    "timestamp": "2025-04-25T09:53:03.730Z",
-    "url": "http://localhost:8080/#use-cases"
+    "timestamp": "2025-04-25T10:10:15.829Z",
+    "url": "http://localhost:8080/#"
+  },
+  {
+    "type": "scroll",
+    "scrollY": 18.399999618530273,
+    "direction": "up",
+    "sessionId": "1745516546122-ac1a8d11a683da88958f168b1e2e1d90",
+    "timestamp": "2025-04-25T10:10:15.862Z",
+    "url": "http://localhost:8080/#"
+  },
+  {
+    "type": "scroll",
+    "scrollY": 109.5999984741211,
+    "direction": "down",
+    "sessionId": "1745516546122-ac1a8d11a683da88958f168b1e2e1d90",
+    "timestamp": "2025-04-25T10:10:16.894Z",
+    "url": "http://localhost:8080/#"
+  },
+  {
+    "type": "scroll",
+    "scrollY": 252.8000030517578,
+    "direction": "down",
+    "sessionId": "1745516546122-ac1a8d11a683da88958f168b1e2e1d90",
+    "timestamp": "2025-04-25T10:10:16.926Z",
+    "url": "http://localhost:8080/#"
+  },
+  {
+    "type": "scroll",
+    "scrollY": 308,
+    "direction": "down",
+    "sessionId": "1745516546122-ac1a8d11a683da88958f168b1e2e1d90",
+    "timestamp": "2025-04-25T10:10:17.009Z",
+    "url": "http://localhost:8080/#"
   }
 ]

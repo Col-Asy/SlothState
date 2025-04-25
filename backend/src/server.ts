@@ -93,78 +93,73 @@ const isValidSessionId = (sessionId: string): boolean => {
 // API Routes
 // Update the route handler with proper typing
 // @ts-ignore
-app.post("/api/track", async (req, res) => {
+// backend/src/server.ts
+app.post("/api/track", async (req: Request, res: Response) => {
   try {
     const eventData = req.body;
     const eventsToAdd = Array.isArray(eventData) ? eventData : [eventData];
+    console.log(`Received ${eventsToAdd.length} events to process`);
 
-    for (const event of eventsToAdd) {
-      console.log("Received event:", JSON.stringify(event, null, 2));
+    for (const [index, event] of eventsToAdd.entries()) {
+      console.log(`\nProcessing event ${index + 1}/${eventsToAdd.length}`);
+      console.log("Raw event data:", JSON.stringify(event, null, 2));
 
+      // Validate required fields
       if (!event.url) {
-        console.log("Event missing URL:", event);
+        console.error("Event missing URL:", event);
         return res.status(400).json({ error: "Missing URL in event" });
       }
 
-      const originalUrl = event.url;
-      const normalizedUrl = normalizeUrl(originalUrl);
-      console.log("Original event.url:", originalUrl);
-      console.log("Normalized event URL for lookup:", normalizedUrl);
+      // Normalize URL
+      const normalizedUrl = normalizeUrl(event.url);
+      console.log(`Normalized URL: ${normalizedUrl}`);
 
-      // Print all integration documents
-      const allIntegrationsSnap = await db.collection("integrations").get();
-      console.log("All integrations in DB:");
-      allIntegrationsSnap.forEach((doc) => {
-        console.log(
-          `  - id: ${doc.id}, url: ${doc.data().url}, status: ${
-            doc.data().status
-          }`
-        );
-      });
-
-      // Print all integrations with matching URL (regardless of status)
-      const urlMatchSnap = await db
-        .collection("integrations")
-        .where("url", "==", normalizedUrl)
-        .get();
-      if (urlMatchSnap.empty) {
-        console.log(
-          `No integration found with url: ${normalizedUrl} (any status)`
-        );
-      } else {
-        console.log(
-          `Integrations found with url: ${normalizedUrl} (any status):`
-        );
-        urlMatchSnap.forEach((doc) => {
-          console.log(`  - id: ${doc.id}, status: ${doc.data().status}`);
-        });
-      }
-
-      // Check for integration with matching URL and status: true
-      const activeIntegrationSnap = await db
-        .collection("integrations")
+      // Check Firestore integration
+      console.log("Checking integrations collection...");
+      const integrationsRef = db.collection("integrations");
+      const integrationSnapshot = await integrationsRef
         .where("url", "==", normalizedUrl)
         .where("status", "==", true)
         .limit(1)
         .get();
 
-      if (activeIntegrationSnap.empty) {
-        console.log(`No ACTIVE integration found with url: ${normalizedUrl}.`);
+      if (integrationSnapshot.empty) {
+        console.error(`No active integration found for: ${normalizedUrl}`);
         return res
           .status(403)
-          .json({ error: `Unauthorized URL: ${originalUrl}` });
-      } else {
-        activeIntegrationSnap.forEach((doc) => {
-          console.log("Matched ACTIVE integration:", doc.id, doc.data());
-        });
+          .json({ error: `Unauthorized URL: ${event.url}` });
       }
+
+      // Write to Firestore
+      try {
+        console.log("Attempting Firestore write...");
+        const docRef = await db.collection("tracking").add({
+          ...event,
+          processedAt: new Date().toISOString(),
+          normalizedUrl: normalizedUrl,
+        });
+        console.log(`Document written with ID: ${docRef.id}`);
+      } catch (firestoreError) {
+        console.error("Firestore write failed:", firestoreError);
+        return res.status(500).json({ error: "Failed to store event" });
+      }
+
+      // Maintain local storage (optional)
+      events.push(event as UserEvent);
+      console.log("Event added to local storage");
     }
 
-    // All events valid - proceed to store/process as usual
-    events.push(...(eventsToAdd as UserEvent[]));
-    if (events.length % 10 === 0) saveEvents();
-    console.log("Events successfully tracked:", eventsToAdd.length);
-    return res.status(200).json({ success: true });
+    // Periodic save to file (optional)
+    if (events.length % 10 === 0) {
+      console.log("Saving events to local file...");
+      saveEvents();
+    }
+
+    console.log(`Successfully processed ${eventsToAdd.length} events`);
+    return res.status(200).json({
+      success: true,
+      processed: eventsToAdd.length,
+    });
   } catch (error) {
     console.error("Tracking error:", error);
     return res.status(500).json({ error: "Internal server error" });
