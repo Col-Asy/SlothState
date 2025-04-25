@@ -1,9 +1,13 @@
 // backend/src/utils/groqClient.ts
 import { Groq } from "groq-sdk";
-import dotenv from "dotenv";
+import * as dotenv from "dotenv";
+import path from 'path';
 
-// Load environment variables
-dotenv.config();
+// Use absolute path to resolve .env file
+dotenv.config({ 
+  path: path.resolve(__dirname, '../../.env'),
+  debug: true // Temporarily enable to verify loading
+});
 
 // Initialize Groq client
 const groqClient = new Groq({

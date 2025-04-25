@@ -163,18 +163,6 @@ const AccountSettings = () => {
         let batch = writeBatch(db);
         const userId = user.uid;
 
-        // 1. Delete user document
-        const userRef = doc(db, "users", userId);
-        batch.delete(userRef);
-
-        // 2. Delete username reference
-        const userDoc = await getDoc(userRef);
-        const username = userDoc.data()?.username;
-        if (username) {
-          const usernameRef = doc(db, "usernames", username);
-          batch.delete(usernameRef);
-        }
-
         // 3. Delete integrations
         const integrationsRef = collection(db, "integrations");
         const integrationsQuery = query(
@@ -203,6 +191,18 @@ const AccountSettings = () => {
             startAfter(trackingSnap.docs[trackingSnap.docs.length - 1])
           );
           trackingSnap = await getDocs(trackingQuery);
+        }
+
+        // 1. Delete user document
+        const userRef = doc(db, "users", userId);
+        batch.delete(userRef);
+
+        // 2. Delete username reference
+        const userDoc = await getDoc(userRef);
+        const username = userDoc.data()?.username;
+        if (username) {
+          const usernameRef = doc(db, "usernames", username);
+          batch.delete(usernameRef);
         }
 
         // 5. Execute final batch commit

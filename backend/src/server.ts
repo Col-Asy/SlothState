@@ -7,6 +7,13 @@ import { SessionData, UserEvent } from "./types";
 import { analyzeUserInteractions } from "./utils/groqClient";
 import admin from "firebase-admin";
 import { getFirestore } from "firebase-admin/firestore";
+import * as dotenv from "dotenv";
+
+// Use absolute path to resolve .env file
+dotenv.config({ 
+  path: path.resolve(__dirname, '../.env'),
+  debug: true // Temporarily enable to verify loading
+});
 
 const app = express();
 const PORT = process.env.PORT;

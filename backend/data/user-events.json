@@ -109,5 +109,100 @@
     "sessionId": "1745516546122-ac1a8d11a683da88958f168b1e2e1d90",
     "timestamp": "2025-04-25T10:10:17.009Z",
     "url": "http://localhost:8080/#"
+  },
+  {
+    "type": "scroll",
+    "scrollY": 3385.949951171875,
+    "direction": "down",
+    "sessionId": "1745607930102-62a9a12a16d7d59fc065db88b9c2fa7e",
+    "timestamp": "2025-04-25T19:07:12.907Z",
+    "url": "http://localhost:8080/#use-cases"
+  },
+  {
+    "type": "scroll",
+    "scrollY": 3467.550048828125,
+    "direction": "down",
+    "sessionId": "1745607930102-62a9a12a16d7d59fc065db88b9c2fa7e",
+    "timestamp": "2025-04-25T19:07:12.942Z",
+    "url": "http://localhost:8080/#use-cases"
+  },
+  {
+    "type": "scroll",
+    "scrollY": 3529.949951171875,
+    "direction": "down",
+    "sessionId": "1745607930102-62a9a12a16d7d59fc065db88b9c2fa7e",
+    "timestamp": "2025-04-25T19:07:12.957Z",
+    "url": "http://localhost:8080/#use-cases"
+  },
+  {
+    "type": "scroll",
+    "scrollY": 3637.949951171875,
+    "direction": "down",
+    "sessionId": "1745607930102-62a9a12a16d7d59fc065db88b9c2fa7e",
+    "timestamp": "2025-04-25T19:07:12.993Z",
+    "url": "http://localhost:8080/#use-cases"
+  },
+  {
+    "type": "scroll",
+    "scrollY": 3725.14990234375,
+    "direction": "down",
+    "sessionId": "1745607930102-62a9a12a16d7d59fc065db88b9c2fa7e",
+    "timestamp": "2025-04-25T19:07:13.017Z",
+    "url": "http://localhost:8080/#use-cases"
+  },
+  {
+    "type": "scroll",
+    "scrollY": 3830.75,
+    "direction": "down",
+    "sessionId": "1745607930102-62a9a12a16d7d59fc065db88b9c2fa7e",
+    "timestamp": "2025-04-25T19:07:13.107Z",
+    "url": "http://localhost:8080/#use-cases"
+  },
+  {
+    "type": "scroll",
+    "scrollY": 3895.550048828125,
+    "direction": "down",
+    "sessionId": "1745607930102-62a9a12a16d7d59fc065db88b9c2fa7e",
+    "timestamp": "2025-04-25T19:07:13.211Z",
+    "url": "http://localhost:8080/#use-cases"
+  },
+  {
+    "type": "scroll",
+    "scrollY": 3951.550048828125,
+    "direction": "down",
+    "sessionId": "1745607930102-62a9a12a16d7d59fc065db88b9c2fa7e",
+    "timestamp": "2025-04-25T19:07:13.378Z",
+    "url": "http://localhost:8080/#use-cases"
+  },
+  {
+    "type": "scroll",
+    "scrollY": 4001.949951171875,
+    "direction": "down",
+    "sessionId": "1745607930102-62a9a12a16d7d59fc065db88b9c2fa7e",
+    "timestamp": "2025-04-25T19:07:13.755Z",
+    "url": "http://localhost:8080/#use-cases"
+  },
+  {
+    "type": "click",
+    "element": {
+      "tagName": "A",
+      "className": "text-foreground/80 hover:text-foreground transition-colors",
+      "text": "How It Works"
+    },
+    "position": {
+      "x": 435,
+      "y": 43
+    },
+    "sessionId": "1745607930102-62a9a12a16d7d59fc065db88b9c2fa7e",
+    "timestamp": "2025-04-25T19:07:16.855Z",
+    "url": "http://localhost:8080/#use-cases"
+  },
+  {
+    "type": "scroll",
+    "scrollY": 2129.949951171875,
+    "direction": "up",
+    "sessionId": "1745607930102-62a9a12a16d7d59fc065db88b9c2fa7e",
+    "timestamp": "2025-04-25T19:07:16.868Z",
+    "url": "http://localhost:8080/#how-it-works"
   }
 ]
