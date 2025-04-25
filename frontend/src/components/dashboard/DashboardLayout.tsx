@@ -78,7 +78,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
 
             {/* Main Navigation */}
             <SidebarGroup>
-              <SidebarGroupLabel className="uppercase tracking-wide text-md text-muted-foreground pb-1">
+              <SidebarGroupLabel className="uppercase tracking-wide text-sm text-muted-foreground pb-1 border-b-2 mb-2">
                 Analytics
               </SidebarGroupLabel>
               <SidebarGroupContent>
@@ -122,7 +122,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
                       <SidebarMenuButton
                         onClick={() => setIsUserDialogOpen(true)}
                         tooltip="User Account"
-                        className="text-lg"
+                        className="px-3 py-6 mb-2 rounded-lg bg-primary hover:bg-primary/80 border flex items-center gap-2 "
                       >
                         <Avatar className="h-8 w-8">
                           {/* Only show initials */}
@@ -130,7 +130,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
                             {initials}
                           </AvatarFallback>
                         </Avatar>
-                        <span>User</span>
+                        {username && <span className="text-sm">@{username}</span>}
                       </SidebarMenuButton>
                     </SidebarMenuItem>
                   </SidebarMenu>
@@ -138,14 +138,14 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
               </SidebarGroup>
 
               {/* Announcements Area */}
-              <div className="p-3 mt-4 mb-2">
+              {/* <div className="p-3 mt-4 mb-2">
                 <div className="p-3 rounded-lg bg-muted/50 border flex items-center gap-2">
                   <Bell className="h-4 w-4 text-muted-foreground" />
                   <span className="text-xs text-muted-foreground">
                     New features available!
                   </span>
                 </div>
-              </div>
+              </div> */}
             </div>
           </SidebarContent>
         </Sidebar>

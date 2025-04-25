@@ -22,6 +22,10 @@ export const useTracking = () => {
     if (eventBuffer.current.length === 0) return;
     const batch = [...eventBuffer.current];
     eventBuffer.current = [];
+    
+    // To check if the batch is being sent correctly
+    console.log(batch.length, "events sent to server");
+    
     try {
       await fetch(`${import.meta.env.VITE_SERVER_BACKEND_URL}/api/track`, {
         method: "POST",
@@ -29,7 +33,9 @@ export const useTracking = () => {
         body: JSON.stringify(batch),
       });
 
-      console.log(batch.length, "events sent to server");
+      // To check if the batch is being sent correctly
+      console.log("Batch sent successfully:", batch.length);
+
     } catch (error) {}
   };
 
