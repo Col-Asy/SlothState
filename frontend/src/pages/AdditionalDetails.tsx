@@ -57,15 +57,13 @@ const AdditionalDetails: React.FC = () => {
         <div className="flex flex-col items-center justify-center py-12 px-6 md:px-12 bg-background/90 backdrop-blur-sm">
           <div className="flex items-center justify-center mb-8 transition-all duration-300 hover:scale-105">
             <img
-              src="/public/logo.jpg"
+              src="logo.jpg"
               alt="SlothState Logo"
               className="h-12 w-12 mr-2"
               style={{ objectFit: "contain" }}
             />
-            <span className="text-2xl font-bold text-gradient bg-gradient-to-r from-green-600 to-emerald-400">
-              SlothState
-            </span>
-            <span className="text-2xl font-bold text-white ml-1">.</span>
+            <span className="text-2xl font-bold text-primary">SlothState</span>
+            <span className="text-2xl font-bold text-foreground ml-1">.</span>
           </div>
           <h2 className="text-3xl font-bold mb-2 text-center">
             Complete Your Profile
@@ -98,19 +96,22 @@ const AdditionalDetails: React.FC = () => {
               {username.length > 0 && (
                 <small
                   className={`block mt-1 text-xs ${
-                    isAvailable
-                      ? "text-green-500"
-                      : "text-red-500"
+                    isAvailable ? "text-green-500" : "text-red-500"
                   }`}
                 >
-                  {isAvailable ? "Username available!" : "Username not available"}
+                  {isAvailable
+                    ? "Username available!"
+                    : "Username not available"}
                 </small>
               )}
             </div>
 
             <div className="transition-all duration-300 hover:translate-y-[-4px]">
               <label className="block font-medium mb-1 text-foreground">
-                Bio <span className="text-xs text-muted-foreground">(optional)</span>
+                Bio{" "}
+                <span className="text-xs text-muted-foreground">
+                  (optional)
+                </span>
               </label>
               <div className="relative">
                 <Info className="absolute left-3 top-3 text-muted-foreground h-5 w-5" />
@@ -128,7 +129,7 @@ const AdditionalDetails: React.FC = () => {
               type="submit"
               disabled={!isAvailable || loading}
               className={`w-full py-2 rounded-lg bg-primary text-primary-foreground font-semibold shadow transition duration-300 hover:shadow-lg hover:bg-accent flex items-center justify-center gap-2 ${
-                (!isAvailable || loading) ? "cursor-not-allowed opacity-70" : ""
+                !isAvailable || loading ? "cursor-not-allowed opacity-70" : ""
               }`}
             >
               {loading ? (

@@ -42,15 +42,15 @@ const SignUp: React.FC = () => {
           <div className="w-full max-w-md">
             <div className="flex items-center justify-center mb-8 transition-all duration-300 hover:scale-105">
               <img
-                src="/public/logo.jpg"
+                src="logo.jpg"
                 alt="SlothState Logo"
                 className="h-12 w-12 mr-2"
                 style={{ objectFit: "contain" }}
               />
-              <span className="text-2xl font-bold text-gradient bg-gradient-to-r from-green-600 to-emerald-400">
+              <span className="text-2xl font-bold text-primary">
                 SlothState
               </span>
-              <span className="text-2xl font-bold text-white ml-1">.</span>
+              <span className="text-2xl font-bold text-foreground ml-1">.</span>
             </div>
             <h2 className="text-3xl font-bold mb-2 text-center">Create Account</h2>
             <p className="text-muted-foreground mb-6 text-center">

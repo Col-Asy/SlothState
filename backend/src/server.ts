@@ -10,9 +10,9 @@ import { getFirestore } from "firebase-admin/firestore";
 import * as dotenv from "dotenv";
 
 // Use absolute path to resolve .env file
-dotenv.config({ 
-  path: path.resolve(__dirname, '../.env'),
-  debug: true // Temporarily enable to verify loading
+dotenv.config({
+  path: path.resolve(__dirname, "../.env"),
+  debug: true, // Temporarily enable to verify loading
 });
 
 const app = express();
@@ -123,8 +123,9 @@ app.post("/api/track", async (req: Request, res: Response) => {
 
       // Check Firestore integration
       console.log("Checking integrations collection...");
-      const integrationsRef = db.collection("integrations");
-      const integrationSnapshot = await integrationsRef
+      // Use collection group query to search across all users' integrations
+      const integrationSnapshot = await db
+        .collectionGroup("integrations")
         .where("url", "==", normalizedUrl)
         .where("status", "==", true)
         .limit(1)
@@ -137,15 +138,25 @@ app.post("/api/track", async (req: Request, res: Response) => {
           .json({ error: `Unauthorized URL: ${event.url}` });
       }
 
+      const integrationDoc = integrationSnapshot.docs[0];
+      const pathSegments = integrationDoc.ref.path.split("/");
+      const userId = pathSegments[1]; // Path format: users/{userId}/integrations/{integrationId}
+      const integrationId = pathSegments[3];
+
       // Write to Firestore
       try {
         console.log("Attempting Firestore write...");
-        const docRef = await db.collection("tracking").add({
+        const trackingRef = db
+          .collection(`users/${userId}/integrations/${integrationId}/tracking`)
+          .doc();
+        await trackingRef.set({
           ...event,
           processedAt: new Date().toISOString(),
           normalizedUrl: normalizedUrl,
+          userId: userId, // Add user ID to event data
+          integrationId: integrationId,
         });
-        console.log(`Document written with ID: ${docRef.id}`);
+        console.log(`Document written with ID: ${trackingRef.id}`);
       } catch (firestoreError) {
         console.error("Firestore write failed:", firestoreError);
         return res.status(500).json({ error: "Failed to store event" });
@@ -179,111 +190,111 @@ app.get("/api/export", (req: Request, res: Response) => {
   res.download(dataFilePath, "user-events.json");
 });
 
-// NEW: Analytics endpoints
-app.get("/api/analytics", (req: Request, res: Response) => {
-  try {
-    const timeRange = req.query.timeRange as string;
-    const filteredEvents = filterEventsByTimeRange(events, timeRange);
+// // NEW: Analytics endpoints
+// app.get("/api/analytics", (req: Request, res: Response) => {
+//   try {
+//     const timeRange = req.query.timeRange as string;
+//     const filteredEvents = filterEventsByTimeRange(events, timeRange);
 
-    // Group events by session
-    const sessions = groupEventsBySession(filteredEvents);
+//     // Group events by session
+//     const sessions = groupEventsBySession(filteredEvents);
 
-    // Calculate session metrics
-    const sessionMetrics = Object.entries(sessions).map(
-      ([sessionId, events]) => ({
-        sessionId,
-        duration: calculateSessionDuration(events),
-        eventCount: events.length,
-        firstEvent: events[0].timestamp,
-        lastEvent: events[events.length - 1].timestamp,
-      })
-    );
+//     // Calculate session metrics
+//     const sessionMetrics = Object.entries(sessions).map(
+//       ([sessionId, events]) => ({
+//         sessionId,
+//         duration: calculateSessionDuration(events),
+//         eventCount: events.length,
+//         firstEvent: events[0].timestamp,
+//         lastEvent: events[events.length - 1].timestamp,
+//       })
+//     );
 
-    res.status(200).json({
-      totalSessions: sessionMetrics.length,
-      averageSessionDuration:
-        sessionMetrics.reduce((sum, m) => sum + m.duration, 0) /
-        sessionMetrics.length,
-      sessions: sessionMetrics,
-    });
-  } catch (error) {
-    console.error("Error fetching analytics data:", error);
-    res.status(500).json({ error: "Failed to load analytics data" });
-  }
-});
+//     res.status(200).json({
+//       totalSessions: sessionMetrics.length,
+//       averageSessionDuration:
+//         sessionMetrics.reduce((sum, m) => sum + m.duration, 0) /
+//         sessionMetrics.length,
+//       sessions: sessionMetrics,
+//     });
+//   } catch (error) {
+//     console.error("Error fetching analytics data:", error);
+//     res.status(500).json({ error: "Failed to load analytics data" });
+//   }
+// });
 
-// NEW: AI analysis endpoint
-app.get("/api/insights", async (req: Request, res: Response) => {
-  try {
-    // Filter events if needed
-    const timeRange = req.query.timeRange as string;
-    const filteredEvents = filterEventsByTimeRange(events, timeRange);
+// // NEW: AI analysis endpoint
+// app.get("/api/insights", async (req: Request, res: Response) => {
+//   try {
+//     // Filter events if needed
+//     const timeRange = req.query.timeRange as string;
+//     const filteredEvents = filterEventsByTimeRange(events, timeRange);
 
-    if (filteredEvents.length === 0) {
-      res.status(400).json({ error: "No events found for analysis" });
-      return; // Just return without a value
-    }
+//     if (filteredEvents.length === 0) {
+//       res.status(400).json({ error: "No events found for analysis" });
+//       return; // Just return without a value
+//     }
 
-    // Get AI-powered insights
-    const insights = await analyzeUserInteractions(filteredEvents);
+//     // Get AI-powered insights
+//     const insights = await analyzeUserInteractions(filteredEvents);
 
-    res.status(200).json(insights);
-  } catch (error) {
-    console.error("Error analyzing with Groq:", error);
-    res.status(500).json({ error: "Failed to analyze user data" });
-  }
-});
+//     res.status(200).json(insights);
+//   } catch (error) {
+//     console.error("Error analyzing with Groq:", error);
+//     res.status(500).json({ error: "Failed to analyze user data" });
+//   }
+// });
 
 // Helper functions
-function filterEventsByTimeRange(
-  events: UserEvent[],
-  timeRange?: string
-): UserEvent[] {
-  if (!timeRange) return events;
+// function filterEventsByTimeRange(
+//   events: UserEvent[],
+//   timeRange?: string
+// ): UserEvent[] {
+//   if (!timeRange) return events;
 
-  const now = new Date();
-  let cutoff = new Date();
+//   const now = new Date();
+//   let cutoff = new Date();
 
-  switch (timeRange) {
-    case "1d":
-      cutoff.setDate(now.getDate() - 1);
-      break;
-    case "7d":
-      cutoff.setDate(now.getDate() - 7);
-      break;
-    case "30d":
-      cutoff.setDate(now.getDate() - 30);
-      break;
-    default:
-      return events;
-  }
+//   switch (timeRange) {
+//     case "1d":
+//       cutoff.setDate(now.getDate() - 1);
+//       break;
+//     case "7d":
+//       cutoff.setDate(now.getDate() - 7);
+//       break;
+//     case "30d":
+//       cutoff.setDate(now.getDate() - 30);
+//       break;
+//     default:
+//       return events;
+//   }
 
-  return events.filter((event) => {
-    const eventDate = new Date(event.timestamp);
-    return eventDate >= cutoff;
-  });
-}
+//   return events.filter((event) => {
+//     const eventDate = new Date(event.timestamp);
+//     return eventDate >= cutoff;
+//   });
+// }
 
-function calculateSessionDuration(events: UserEvent[]): number {
-  if (events.length < 2) return 0;
+// function calculateSessionDuration(events: UserEvent[]): number {
+//   if (events.length < 2) return 0;
 
-  const firstEvent = new Date(events[0].timestamp).getTime();
-  const lastEvent = new Date(events[events.length - 1].timestamp).getTime();
+//   const firstEvent = new Date(events[0].timestamp).getTime();
+//   const lastEvent = new Date(events[events.length - 1].timestamp).getTime();
 
-  // Return duration in seconds
-  return (lastEvent - firstEvent) / 1000;
-}
+//   // Return duration in seconds
+//   return (lastEvent - firstEvent) / 1000;
+// }
 
-function groupEventsBySession(
-  events: UserEvent[]
-): Record<string, UserEvent[]> {
-  const sessions: Record<string, UserEvent[]> = {};
-  for (const event of events) {
-    if (!sessions[event.sessionId]) sessions[event.sessionId] = [];
-    sessions[event.sessionId].push(event);
-  }
-  return sessions;
-}
+// function groupEventsBySession(
+//   events: UserEvent[]
+// ): Record<string, UserEvent[]> {
+//   const sessions: Record<string, UserEvent[]> = {};
+//   for (const event of events) {
+//     if (!sessions[event.sessionId]) sessions[event.sessionId] = [];
+//     sessions[event.sessionId].push(event);
+//   }
+//   return sessions;
+// }
 
 function normalizeUrl(url: string) {
   try {

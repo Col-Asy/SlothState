@@ -26,6 +26,7 @@ import {
   doc,
   getDoc,
   onSnapshot,
+  writeBatch,
 } from "firebase/firestore";
 
 const Integrations = () => {
@@ -33,6 +34,17 @@ const Integrations = () => {
   const [sites, setSites] = useState<IntegrationSite[]>([]);
   const [newSiteUrl, setNewSiteUrl] = useState("");
   const [isUrlValid, setIsUrlValid] = useState(false);
+
+  const [showQuestions, setShowQuestions] = useState(false);
+  const [answers, setAnswers] = useState<{ [question: string]: string }>({});
+  const questions = [
+    "Is there a clear and easily accessible navigation bar on all key pages?",
+    "Can users complete the primary action (e.g., purchase, signup) within three clicks or less?",
+    "Are there noticeable drop-off points in the user journey (e.g., on forms, checkouts, or key pages)?",
+    "Are users showing repeated patterns or preferences that can be linked to specific segments or profiles?",
+    "Is the website layout consistent and intuitive across different devices (desktop, tablet, mobile)?",
+  ];
+  const options = ["Yes", "No", "Not sure"];
 
   // Fetch username from Firestore (assuming you store it in /users/{uid})
   const [username, setUsername] = useState<string>("");
@@ -69,10 +81,8 @@ const Integrations = () => {
   // Real-time listener for user's integrations
   useEffect(() => {
     if (!user?.uid) return;
-    const q = query(
-      collection(db, "integrations"),
-      where("uid", "==", user.uid)
-    );
+    const q = query(collection(db, `users/${user.uid}/integrations`));
+
     const unsub = onSnapshot(q, (querySnapshot) => {
       const data: IntegrationSite[] = [];
       querySnapshot.forEach((doc) => {
@@ -100,30 +110,46 @@ const Integrations = () => {
     validateUrl(url);
   };
 
-  const addSite = async () => {
+  const handleAddSiteClick = () => {
     if (!validateUrl(newSiteUrl) || !user?.uid || !username) return;
-
-    const urlObj = new URL(newSiteUrl);
-    const favicon = `https://www.google.com/s2/favicons?domain=${urlObj.hostname}`;
-    await addDoc(collection(db, "integrations"), {
-      uid: user.uid,
-      username,
-      url: newSiteUrl,
-      status: false, // Pending by default
-      dateAdded: new Date().toISOString(),
-      favicon,
-    });
-
-    setNewSiteUrl("");
-    setIsUrlValid(false);
+    setShowQuestions(true);
   };
 
   const removeSite = async (id: string) => {
-    await deleteDoc(doc(db, "integrations", id));
+    if (!user?.uid) return;
+
+    try {
+      const batch = writeBatch(db);
+      const integrationRef = doc(db, `users/${user.uid}/integrations`, id);
+
+      // 1. Delete tracking subcollection documents
+      const trackingRef = collection(
+        db,
+        `users/${user.uid}/integrations/${id}/tracking`
+      );
+      const trackingSnap = await getDocs(trackingRef);
+      trackingSnap.forEach((doc) => batch.delete(doc.ref));
+
+      // 2. Delete analytics subcollection documents
+      const analyticsRef = collection(
+        db,
+        `users/${user.uid}/integrations/${id}/analytics`
+      );
+      const analyticsSnap = await getDocs(analyticsRef);
+      analyticsSnap.forEach((doc) => batch.delete(doc.ref));
+
+      // 3. Delete the integration document itself
+      batch.delete(integrationRef);
+
+      await batch.commit();
+    } catch (error) {
+      console.error("Deletion error:", error);
+      throw error;
+    }
   };
 
   const changeConnection = async (id: string, currentStatus: boolean) => {
-    await updateDoc(doc(db, "integrations", id), {
+    await updateDoc(doc(db, `users/${user.uid}/integrations`, id), {
       status: !currentStatus,
     });
   };
@@ -158,13 +184,70 @@ const Integrations = () => {
                 />
               </div>
               <div className="flex items-end">
-                <Button onClick={addSite} disabled={!isUrlValid}>
-                  Add Site
+                <Button onClick={handleAddSiteClick} disabled={!isUrlValid}>
+                  Next
                 </Button>
               </div>
             </div>
           </CardContent>
         </Card>
+
+        {showQuestions && (
+          <Card className="mt-4">
+            <CardHeader>
+              <CardTitle>Website Details</CardTitle>
+              <CardDescription>
+                Please answer these questions to help us understand your site.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {questions.map((q) => (
+                <div key={q} className="mb-4">
+                  <Label className="block mb-2">{q}</Label>
+                  <div className="flex gap-4">
+                    {options.map((opt) => (
+                      <Button
+                        key={opt}
+                        variant={answers[q] === opt ? "default" : "outline"}
+                        onClick={() =>
+                          setAnswers((prev) => ({ ...prev, [q]: opt }))
+                        }
+                      >
+                        {opt}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </CardContent>
+            <CardFooter>
+              <Button
+                onClick={async () => {
+                  const urlObj = new URL(newSiteUrl);
+                  const favicon = `https://www.google.com/s2/favicons?domain=${urlObj.hostname}`;
+                  await addDoc(
+                    collection(db, `users/${user.uid}/integrations`),
+                    {
+                      username,
+                      url: newSiteUrl,
+                      status: false,
+                      dateAdded: new Date().toISOString(),
+                      favicon,
+                      questions: answers, // Stored as { "question1": "ans", ... }
+                    }
+                  );
+                  setNewSiteUrl("");
+                  setIsUrlValid(false);
+                  setShowQuestions(false);
+                  setAnswers({});
+                }}
+                disabled={questions.some((q) => !answers[q])}
+              >
+                Save Integration
+              </Button>
+            </CardFooter>
+          </Card>
+        )}
 
         <div>
           <h2 className="text-xl font-semibold mb-4">Connected Sites</h2>

@@ -23,8 +23,23 @@ import {
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
 import { getInitials } from "@/utils/img-initials";
-import { doc, getDoc } from "firebase/firestore";
+import {
+  doc,
+  getDoc,
+  collection,
+  query,
+  where,
+  onSnapshot,
+} from "firebase/firestore";
 import { db } from "@/utils/firebase/firebase";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { ProjectProvider } from "@/context/ProjectContext";
 
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
@@ -35,6 +50,8 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   const displayName = user?.displayName || user?.email || "User";
   const displayEmail = user?.email || "No email";
   const initials = getInitials(user?.displayName || user?.email || "User");
+  const [integrations, setIntegrations] = useState<any[]>([]);
+  const [currentIntegrationId, setCurrentIntegrationId] = useState("");
 
   // Helper to highlight active route
   const isActive = (path: string) =>
@@ -60,7 +77,44 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
     fetchUsername();
   }, [user?.uid]); // Refetch when UID changes
 
-  const displayUsername = username || user?.displayName || user?.email || "User";
+  useEffect(() => {
+    if (!user?.uid) return;
+
+    const q = query(collection(db, `users/${user.uid}/integrations`));
+
+    const unsub = onSnapshot(q, (snapshot) => {
+      const data = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setIntegrations(data);
+      if (data.length > 0 && !currentIntegrationId) {
+        setCurrentIntegrationId(data[0].id);
+      }
+    });
+
+    return () => unsub();
+  }, [user?.uid]);
+
+  useEffect(() => {
+    if (!user?.uid) return;
+
+    const ref = collection(db, `users/${user.uid}/integrations`);
+    const unsub = onSnapshot(ref, (snapshot) => {
+      const data = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+      setIntegrations(data);
+
+      // Auto-select first integration if none selected
+      if (data.length > 0 && !currentIntegrationId) {
+        setCurrentIntegrationId(data[0].id);
+      }
+    });
+
+    return () => unsub();
+  }, [user?.uid]);
+
+  const displayUsername =
+    username || user?.displayName || user?.email || "User";
 
   return (
     <SidebarProvider defaultOpen={true}>
@@ -130,7 +184,9 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
                             {initials}
                           </AvatarFallback>
                         </Avatar>
-                        {username && <span className="text-sm">@{username}</span>}
+                        {username && (
+                          <span className="text-sm">@{username}</span>
+                        )}
                       </SidebarMenuButton>
                     </SidebarMenuItem>
                   </SidebarMenu>
@@ -151,12 +207,33 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
         </Sidebar>
 
         <div className="flex flex-col flex-1">
-          <header className="h-14 border-b flex items-center px-6">
+          <header className="h-14 border-b flex items-center px-6 gap-4">
             <div className="flex-1">
               <SidebarTrigger />
             </div>
+            {/* <Select
+              value={currentIntegrationId}
+              onValueChange={setCurrentIntegrationId}
+            >
+              <SelectTrigger className="w-[300px]">
+                <SelectValue placeholder="Select Project" />
+              </SelectTrigger>
+              <SelectContent>
+                {integrations.map((integration) => (
+                  <SelectItem key={integration.id} value={integration.id}>
+                    {new URL(integration.url).hostname}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select> */}
           </header>
-          <main className="flex-1 p-6 overflow-auto">{children}</main>
+
+          <ProjectProvider
+            integrations={integrations}
+            currentIntegrationId={currentIntegrationId}
+          >
+            <main className="flex-1 p-6 overflow-auto">{children}</main>
+          </ProjectProvider>
         </div>
       </div>
 
@@ -173,7 +250,11 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
                 {initials}
               </AvatarFallback>
             </Avatar>
-            {username && <h3 className="font-medium light:text-muted text-gray-500">@{username}</h3>}
+            {username && (
+              <h3 className="font-medium light:text-muted text-gray-500">
+                @{username}
+              </h3>
+            )}
             <h3 className="font-medium">{displayName}</h3>
             <p className="text-sm text-muted-foreground">{displayEmail}</p>
           </div>

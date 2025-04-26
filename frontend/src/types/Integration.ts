@@ -1,10 +1,12 @@
 // src/types/Integration.ts
 export interface IntegrationSite {
-  id: string; // Firestore document id
-  uid: string; // User's UID (foreign key)
-  username: string; // User's username (foreign key)
+  id: string;
+  username: string;
   url: string;
-  status: boolean; // true = Active, false = Pending
-  dateAdded: string; // ISO string
+  status: boolean;
+  dateAdded: string;
   favicon: string;
+  questions: {
+    [key: string]: string; // For the 5 question:answer pairs
+  };
 }

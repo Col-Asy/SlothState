@@ -45,6 +45,7 @@ import {
   updateProfile,
 } from "firebase/auth";
 import { getInitials } from "@/utils/img-initials";
+import LoaderComponent from "@/components/LoaderComponent";
 
 const AccountSettings = () => {
   const { user, logout } = useAuth();
@@ -80,7 +81,8 @@ const AccountSettings = () => {
     fetchUsername();
   }, [user?.uid]); // Refetch when UID changes
 
-  const displayUsername = username || user?.displayName || user?.email || "User";
+  const displayUsername =
+    username || user?.displayName || user?.email || "User";
 
   const handleSaveProfile = async () => {
     try {
@@ -160,44 +162,41 @@ const AccountSettings = () => {
 
     try {
       if (user) {
-        let batch = writeBatch(db);
+        const batch = writeBatch(db);
         const userId = user.uid;
 
-        // 3. Delete integrations
-        const integrationsRef = collection(db, "integrations");
-        const integrationsQuery = query(
-          integrationsRef,
-          where("uid", "==", userId)
-        );
-        const integrationsSnap = await getDocs(integrationsQuery);
-        integrationsSnap.forEach((doc) => batch.delete(doc.ref));
+        // 1. Delete all integrations and their subcollections
+        const integrationsRef = collection(db, `users/${userId}/integrations`);
+        const integrationsSnap = await getDocs(integrationsRef);
 
-        // 4. Delete tracking data (paginated to handle large datasets)
-        let trackingQuery = query(
-          collection(db, "tracking"),
-          where("userId", "==", userId),
-          limit(500)
-        );
-        let trackingSnap = await getDocs(trackingQuery);
+        for (const integrationDoc of integrationsSnap.docs) {
+          const integrationId = integrationDoc.id;
 
-        while (!trackingSnap.empty) {
-          trackingSnap.forEach((doc) => batch.delete(doc.ref));
-          await batch.commit();
-
-          // Start new batch for next page
-          batch = writeBatch(db);
-          trackingQuery = query(
-            trackingQuery,
-            startAfter(trackingSnap.docs[trackingSnap.docs.length - 1])
+          // Delete tracking subcollection
+          const trackingRef = collection(
+            db,
+            `users/${userId}/integrations/${integrationId}/tracking`
           );
-          trackingSnap = await getDocs(trackingQuery);
+          const trackingSnap = await getDocs(trackingRef);
+          trackingSnap.forEach((doc) => batch.delete(doc.ref));
+
+          // Delete analytics subcollection
+          const analyticsRef = collection(
+            db,
+            `users/${userId}/integrations/${integrationId}/analytics`
+          );
+          const analyticsSnap = await getDocs(analyticsRef);
+          analyticsSnap.forEach((doc) => batch.delete(doc.ref));
+
+          // Delete the integration document itself
+          batch.delete(integrationDoc.ref);
         }
 
-        // 1. Delete user document
+        // 2. Delete user document
         const userRef = doc(db, "users", userId);
         batch.delete(userRef);
 
-        // 2. Delete username reference
+        // 3. Delete username reference
         const userDoc = await getDoc(userRef);
         const username = userDoc.data()?.username;
         if (username) {
@@ -205,10 +204,10 @@ const AccountSettings = () => {
           batch.delete(usernameRef);
         }
 
-        // 5. Execute final batch commit
+        // Execute all deletions
         await batch.commit();
 
-        // 6. Delete auth user
+        // 4. Delete auth user
         await deleteUser(user);
 
         logout();
@@ -228,7 +227,7 @@ const AccountSettings = () => {
     }
   };
 
-  if (!user) return <div>Loading...</div>;
+  if (!user) return <div><LoaderComponent /></div>;
 
   return (
     <DashboardLayout>
@@ -255,7 +254,9 @@ const AccountSettings = () => {
                   </AvatarFallback>
                 </Avatar>
 
-                <div className="text-center mt-2 text-gray-400">@{username}</div>
+                <div className="text-center mt-2 text-gray-400">
+                  @{username}
+                </div>
               </div>
 
               <div className="space-y-4 flex-1">

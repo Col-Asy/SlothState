@@ -57,22 +57,22 @@ const SignIn: React.FC = () => {
     <div className="relative min-h-screen flex items-center justify-center">
       <BackgroundBeams className="absolute inset-0 -z-10" />
       <div className="relative z-10 p-10 text-white"></div>
-      
+
       <div className="relative z-10 w-full max-w-5xl h-[850px] grid grid-cols-1 md:grid-cols-2 rounded-2xl overflow-hidden shadow-xl border border-accent/20 glass-card">
         {/* Left: Sign In Form (opaque to block beams) */}
         <div className="relative z-10 flex items-center justify-center py-12 px-6 md:px-12 bg-background">
           <div className="w-full max-w-md">
             <div className="flex items-center justify-center mb-8 transition-all duration-300 hover:scale-105">
               <img
-                src="/public/logo.jpg"
+                src="logo.jpg"
                 alt="SlothState Logo"
                 className="h-12 w-12 mr-2"
                 style={{ objectFit: "contain" }}
               />
-              <span className="text-2xl font-bold text-gradient bg-gradient-to-r from-green-600 to-emerald-400">
+              <span className="text-2xl font-bold text-primary">
                 SlothState
               </span>
-              <span className="text-2xl font-bold text-white ml-1">.</span>
+              <span className="text-2xl font-bold text-foreground ml-1">.</span>
             </div>
             <h2 className="text-3xl font-bold mb-2 text-center">Sign In</h2>
             <p className="text-muted-foreground mb-6 text-center">
@@ -155,7 +155,8 @@ const SignIn: React.FC = () => {
               >
                 {loading ? (
                   <>
-                    <Loader className="animate-spin-slow h-5 w-5" /> Signing In...
+                    <Loader className="animate-spin-slow h-5 w-5" /> Signing
+                    In...
                   </>
                 ) : (
                   "Sign In"
@@ -170,7 +171,7 @@ const SignIn: React.FC = () => {
             <button
               type="button"
               onClick={handleGoogleSignIn}
-                className={clsx(
+              className={clsx(
                 "w-full py-2 bg-background/60 backdrop-blur-sm border border-input text-muted-foreground font-semibold rounded-lg flex items-center justify-center gap-2 shadow transition duration-300 hover:shadow-lg hover:bg-accent/20",
                 loading && "cursor-not-allowed opacity-70"
               )}
@@ -180,7 +181,7 @@ const SignIn: React.FC = () => {
               Sign In with Google
             </button>
             <p className="mt-8 text-center text-sm text-muted-foreground">
-              Don't have an account?{' '}
+              Don't have an account?{" "}
               <Link
                 to="/signup"
                 className="text-accent font-semibold hover:underline transition-colors"
@@ -193,10 +194,13 @@ const SignIn: React.FC = () => {
 
         {/* Right: Aurora Background effect (opaque to block beams) */}
         <div className="relative z-10 hidden md:block">
-        <AuroraBackground className="hidden md:flex items-center justify-center bg-transparent p-0 m-0" showRadialGradient>
-          {/* Add meaningful content or leave empty */}
-          <div />
-        </AuroraBackground>
+          <AuroraBackground
+            className="hidden md:flex items-center justify-center bg-transparent p-0 m-0"
+            showRadialGradient
+          >
+            {/* Add meaningful content or leave empty */}
+            <div />
+          </AuroraBackground>
         </div>
       </div>
     </div>
