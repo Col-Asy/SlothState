@@ -8,6 +8,7 @@ import {
   analyzeUserInteractions,
   convertAnalysisToInsights,
   generateAISummary,
+  generateDailyIssues,
 } from "./utils/groqClient";
 import admin from "firebase-admin";
 import { Timestamp } from "firebase-admin/firestore";
@@ -107,149 +108,149 @@ const isValidSessionId = (sessionId: string): boolean => {
 // Update the route handler with proper typing
 // @ts-ignore
 // backend/src/server.ts
-app.post("/api/track", async (req: Request, res: Response) => {
-  try {
-    const eventData = req.body;
-    const eventsToAdd = Array.isArray(eventData) ? eventData : [eventData];
-    const processedEvents: string[] = [];
-    const errors: any[] = [];
+// app.post("/api/track", async (req: Request, res: Response) => {
+//   try {
+//     const eventData = req.body;
+//     const eventsToAdd = Array.isArray(eventData) ? eventData : [eventData];
+//     const processedEvents: string[] = [];
+//     const errors: any[] = [];
 
-    console.log(`\n=== Received ${eventsToAdd.length} events ===`);
+//     console.log(`\n=== Received ${eventsToAdd.length} events ===`);
 
-    for (const [index, event] of eventsToAdd.entries()) {
-      try {
-        console.log(`\nProcessing event ${index + 1}/${eventsToAdd.length}`);
-        console.log("Raw event data:", JSON.stringify(event, null, 2));
+//     for (const [index, event] of eventsToAdd.entries()) {
+//       try {
+//         console.log(`\nProcessing event ${index + 1}/${eventsToAdd.length}`);
+//         console.log("Raw event data:", JSON.stringify(event, null, 2));
 
-        // Validate required fields
-        if (!event.url) {
-          throw new Error("Missing URL in event");
-        }
+//         // Validate required fields
+//         if (!event.url) {
+//           throw new Error("Missing URL in event");
+//         }
 
-        // Normalize URL
-        const normalizedUrl = normalizeUrl(event.url);
-        console.log(`Normalized URL: ${normalizedUrl}`);
+//         // Normalize URL
+//         const normalizedUrl = normalizeUrl(event.url);
+//         console.log(`Normalized URL: ${normalizedUrl}`);
 
-        // Check integration exists
-        console.log("Checking integrations...");
-        const integrationSnapshot = await db
-          .collectionGroup("integrations")
-          .where("url", "==", normalizedUrl)
-          .where("status", "==", true)
-          .limit(1)
-          .get();
+//         // Check integration exists
+//         console.log("Checking integrations...");
+//         const integrationSnapshot = await db
+//           .collectionGroup("integrations")
+//           .where("url", "==", normalizedUrl)
+//           .where("status", "==", true)
+//           .limit(1)
+//           .get();
 
-        if (integrationSnapshot.empty) {
-          throw new Error(`No active integration for: ${normalizedUrl}`);
-        }
+//         if (integrationSnapshot.empty) {
+//           throw new Error(`No active integration for: ${normalizedUrl}`);
+//         }
 
-        const integrationDoc = integrationSnapshot.docs[0];
-        const pathSegments = integrationDoc.ref.path.split("/");
-        const userId = pathSegments[1];
-        const integrationId = pathSegments[3];
-        console.log(
-          `Found integration: user=${userId}, integration=${integrationId}`
-        );
+//         const integrationDoc = integrationSnapshot.docs[0];
+//         const pathSegments = integrationDoc.ref.path.split("/");
+//         const userId = pathSegments[1];
+//         const integrationId = pathSegments[3];
+//         console.log(
+//           `Found integration: user=${userId}, integration=${integrationId}`
+//         );
 
-        // ================= Timestamp Handling =================
-        console.log("\nProcessing timestamp:");
-        console.log("Original timestamp:", event.timestamp);
-        console.log("Original type:", typeof event.timestamp);
+//         // ================= Timestamp Handling =================
+//         console.log("\nProcessing timestamp:");
+//         console.log("Original timestamp:", event.timestamp);
+//         console.log("Original type:", typeof event.timestamp);
 
-        let timestampMillis: number;
+//         let timestampMillis: number;
 
-        // Handle numeric types (including strings that are numbers)
-        if (!isNaN(event.timestamp)) {
-          timestampMillis = Number(event.timestamp);
-          console.log("Converted numeric timestamp (ms):", timestampMillis);
-        }
-        // Handle ISO strings
-        else if (typeof event.timestamp === "string") {
-          timestampMillis = new Date(event.timestamp).getTime();
-          console.log("Converted ISO timestamp (ms):", timestampMillis);
-        }
-        // Handle Date objects (unlikely from HTTP request)
-        else if (event.timestamp instanceof Date) {
-          timestampMillis = event.timestamp.getTime();
-          console.log("Converted Date timestamp (ms):", timestampMillis);
-        } else {
-          throw new Error(
-            `Unsupported timestamp type: ${typeof event.timestamp}`
-          );
-        }
+//         // Handle numeric types (including strings that are numbers)
+//         if (!isNaN(event.timestamp)) {
+//           timestampMillis = Number(event.timestamp);
+//           console.log("Converted numeric timestamp (ms):", timestampMillis);
+//         }
+//         // Handle ISO strings
+//         else if (typeof event.timestamp === "string") {
+//           timestampMillis = new Date(event.timestamp).getTime();
+//           console.log("Converted ISO timestamp (ms):", timestampMillis);
+//         }
+//         // Handle Date objects (unlikely from HTTP request)
+//         else if (event.timestamp instanceof Date) {
+//           timestampMillis = event.timestamp.getTime();
+//           console.log("Converted Date timestamp (ms):", timestampMillis);
+//         } else {
+//           throw new Error(
+//             `Unsupported timestamp type: ${typeof event.timestamp}`
+//           );
+//         }
 
-        // Final validation
-        if (isNaN(timestampMillis)) {
-          throw new Error(`Invalid timestamp value: ${event.timestamp}`);
-        }
+//         // Final validation
+//         if (isNaN(timestampMillis)) {
+//           throw new Error(`Invalid timestamp value: ${event.timestamp}`);
+//         }
 
-        // Check if timestamp is in seconds (common mistake)
-        if (timestampMillis < 1_000_000_000_000) {
-          // Before 2001-09-09
-          console.warn(
-            "Timestamp might be in seconds - converting to milliseconds"
-          );
-          timestampMillis *= 1000;
-        }
+//         // Check if timestamp is in seconds (common mistake)
+//         if (timestampMillis < 1_000_000_000_000) {
+//           // Before 2001-09-09
+//           console.warn(
+//             "Timestamp might be in seconds - converting to milliseconds"
+//           );
+//           timestampMillis *= 1000;
+//         }
 
-        const eventTimestamp = Timestamp.fromMillis(timestampMillis);
-        console.log("Firestore timestamp:", eventTimestamp.toDate());
-        console.log("Firestore seconds:", eventTimestamp.seconds);
-        console.log("Firestore nanoseconds:", eventTimestamp.nanoseconds);
+//         const eventTimestamp = Timestamp.fromMillis(timestampMillis);
+//         console.log("Firestore timestamp:", eventTimestamp.toDate());
+//         console.log("Firestore seconds:", eventTimestamp.seconds);
+//         console.log("Firestore nanoseconds:", eventTimestamp.nanoseconds);
 
-        // ================= Firestore Write =================
-        console.log("Writing to tracking collection...");
-        const trackingRef = db
-          .collection(`users/${userId}/integrations/${integrationId}/tracking`)
-          .doc();
+//         // ================= Firestore Write =================
+//         console.log("Writing to tracking collection...");
+//         const trackingRef = db
+//           .collection(`users/${userId}/integrations/${integrationId}/tracking`)
+//           .doc();
 
-        await trackingRef.set({
-          ...event,
-          timestamp: eventTimestamp,
-          processedAt: Timestamp.now(),
-          normalizedUrl,
-          userId,
-          integrationId,
-        });
+//         await trackingRef.set({
+//           ...event,
+//           timestamp: eventTimestamp,
+//           processedAt: Timestamp.now(),
+//           normalizedUrl,
+//           userId,
+//           integrationId,
+//         });
 
-        console.log(`Document written with ID: ${trackingRef.id}`);
-        processedEvents.push(trackingRef.id);
-      } catch (error) {
-        let errorMsg: string;
-        if (error instanceof Error) {
-          errorMsg = `Event ${index + 1} failed: ${error.message}`;
-        } else {
-          errorMsg = `Event ${index + 1} failed: ${String(error)}`;
-        }
-        console.error(errorMsg);
-        errors.push({
-          eventIndex: index + 1,
-          error: errorMsg,
-          rawEvent: event,
-        });
-      }
-    }
+//         console.log(`Document written with ID: ${trackingRef.id}`);
+//         processedEvents.push(trackingRef.id);
+//       } catch (error) {
+//         let errorMsg: string;
+//         if (error instanceof Error) {
+//           errorMsg = `Event ${index + 1} failed: ${error.message}`;
+//         } else {
+//           errorMsg = `Event ${index + 1} failed: ${String(error)}`;
+//         }
+//         console.error(errorMsg);
+//         errors.push({
+//           eventIndex: index + 1,
+//           error: errorMsg,
+//           rawEvent: event,
+//         });
+//       }
+//     }
 
-    // Return detailed response
-    return res.status(200).json({
-      success: errors.length === 0,
-      processed: processedEvents.length,
-      failed: errors.length,
-      errors,
-    });
-  } catch (error) {
-    let errorMsg: string;
-    if (error instanceof Error) {
-      errorMsg = error.message;
-    } else {
-      errorMsg = String(error);
-    }
-    console.error("Tracking error:", errorMsg);
-    return res
-      .status(500)
-      .json({ error: "Internal server error", details: errorMsg });
-  }
-});
+//     // Return detailed response
+//     return res.status(200).json({
+//       success: errors.length === 0,
+//       processed: processedEvents.length,
+//       failed: errors.length,
+//       errors,
+//     });
+//   } catch (error) {
+//     let errorMsg: string;
+//     if (error instanceof Error) {
+//       errorMsg = error.message;
+//     } else {
+//       errorMsg = String(error);
+//     }
+//     console.error("Tracking error:", errorMsg);
+//     return res
+//       .status(500)
+//       .json({ error: "Internal server error", details: errorMsg });
+//   }
+// });
 
 app.get("/api/export", (req: Request, res: Response) => {
   // Save before exporting to ensure latest data
@@ -273,9 +274,11 @@ app.post("/api/generate-insights", async (req: Request, res: Response) => {
       .get();
 
     const events = snapshot.docs.map((doc) => doc.data());
+    const MAX_EVENTS = 50; // Adjust based on testing
+    const eventsToAnalyze = events.slice(0, MAX_EVENTS);
 
     // 2. Generate insights
-    const analysis = await analyzeUserInteractions(events);
+    const analysis = await analyzeUserInteractions(eventsToAnalyze);
     const insightsData = convertAnalysisToInsights(analysis);
 
     // 3. Create parent analytics document
@@ -354,6 +357,162 @@ app.post("/api/generate-summary", async (req: Request, res: Response) => {
   } catch (error) {
     console.error("Summary generation error:", error);
     res.status(500).json({ error: "Failed to generate summary" });
+  }
+});
+
+app.post("/api/generate-daily-issues", async (req: Request, res: Response) => {
+  try {
+    const { integrationId, uid: userId } = req.body;
+    console.log(integrationId, userId);
+
+    if (!integrationId) {
+      // Add validation
+      res.status(400).json({ error: "Missing integration ID" });
+    }
+
+    // Get target date (yesterday or today)
+    const targetDate = new Date();
+    if (new Date().getHours() < 12) {
+      targetDate.setDate(targetDate.getDate() - 1);
+    }
+    const dateString = targetDate.toISOString().split("T")[0];
+
+    // Check existing
+    const dailyIssuesRef = db.collection(
+      `users/${userId}/integrations/${integrationId}/dailyIssues`
+    );
+    const existingDoc = await dailyIssuesRef.doc(dateString).get();
+    if (existingDoc.exists) {
+      res.json({ success: true, existing: true });
+      return;
+    }
+
+    // Get data for target period
+    const start = new Date(targetDate);
+    start.setHours(0, 0, 0, 0);
+    const end = new Date(targetDate);
+    end.setHours(23, 59, 59, 999);
+
+    const analyticsRef = db.collection(
+      `users/${userId}/integrations/${integrationId}/analytics`
+    );
+    const snapshot = await analyticsRef
+      .where("timestamp", ">=", admin.firestore.Timestamp.fromDate(start))
+      .where("timestamp", "<=", admin.firestore.Timestamp.fromDate(end))
+      .get();
+
+    // Generate issues
+    const insights = [];
+    for (const doc of snapshot.docs) {
+      const insightsSnapshot = await doc.ref.collection("insights").get();
+      insights.push(...insightsSnapshot.docs.map((d) => d.data()));
+    }
+
+    const issues = await generateDailyIssues(insights);
+
+    // Store with TTL of 7 days
+    await dailyIssuesRef.doc(dateString).set({
+      issues,
+      createdAt: admin.firestore.Timestamp.now(),
+      expiresAt: admin.firestore.Timestamp.fromDate(
+        new Date(Date.now() + 7 * 86400000)
+      ),
+    });
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error("Daily issues error:", error);
+    res.status(500).json({ error: "Failed to generate daily issues" });
+  }
+});
+
+// server.ts
+app.post("/api/generate-daily-metrics", async (req: Request, res: Response) => {
+  try {
+    const { integrationId, uid: userId } = req.body;
+
+    // 1. Calculate date range (previous day)
+    const now = new Date();
+    const yesterday = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate() - 1
+    );
+    const startDate = new Date(yesterday);
+    const endDate = new Date(yesterday);
+    endDate.setHours(23, 59, 59, 999);
+
+    // 2. Get tracking data for the date range
+    const trackingRef = db.collection(
+      `users/${userId}/integrations/${integrationId}/tracking`
+    );
+
+    const snapshot = await trackingRef
+      .where("timestamp", ">=", admin.firestore.Timestamp.fromDate(startDate))
+      .where("timestamp", "<=", admin.firestore.Timestamp.fromDate(endDate))
+      .get();
+
+    if (snapshot.empty) {
+      res.status(404).json({ error: "No tracking data found for this period" });
+      return;
+    }
+
+    // 3. Process tracking data
+    const sessions = new Map<string, any>();
+    let totalDuration = 0;
+    let bounceCount = 0;
+    let conversionCount = 0;
+
+    snapshot.docs.forEach((doc) => {
+      const data = doc.data();
+
+      // Session-based metrics
+      if (data.type === "session") {
+        const session = sessions.get(data.sessionId) || {
+          pageViews: 0,
+          duration: 0,
+          converted: false,
+        };
+
+        session.pageViews += data.pageViews || 0;
+        session.duration += data.duration || 0;
+        session.converted = session.converted || data.converted || false;
+
+        sessions.set(data.sessionId, session);
+      }
+    });
+
+    // 4. Calculate metrics
+    const totalSessions = sessions.size;
+
+    sessions.forEach((session) => {
+      totalDuration += session.duration;
+      if (session.pageViews <= 1) bounceCount++;
+      if (session.converted) conversionCount++;
+    });
+
+    const metrics = {
+      date: yesterday.toISOString().split("T")[0],
+      sessions: totalSessions,
+      conversions: conversionCount,
+      avgDuration: totalSessions > 0 ? totalDuration / totalSessions : 0,
+      bounceRate: totalSessions > 0 ? (bounceCount / totalSessions) * 100 : 0,
+      conversionRate:
+        totalSessions > 0 ? (conversionCount / totalSessions) * 100 : 0,
+      timestamp: admin.firestore.Timestamp.now(),
+    };
+
+    // 5. Store metrics
+    const metricsRef = db
+      .collection(`users/${userId}/integrations/${integrationId}/dailyMetrics`)
+      .doc(metrics.date);
+
+    await metricsRef.set(metrics);
+
+    res.json({ success: true, metrics });
+  } catch (error) {
+    console.error("Metrics generation error:", error);
+    res.status(500).json({ error: "Failed to generate daily metrics" });
   }
 });
 
@@ -489,6 +648,37 @@ function getStartDate(dateRange: string): Date {
       return new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
   }
 }
+
+const processInsights = (insights: any[]) => ({
+  uniqueUsers: new Set(
+    insights.filter((i) => i.type === "session").map((i) => i.userId)
+  ).size,
+  avgDuration:
+    insights.reduce((sum, i) => sum + (i.duration || 0), 0) / insights.length ||
+    0,
+  bounceRate:
+    (insights.filter((i) => i.type === "session" && i.pageViews <= 1).length /
+      insights.length) *
+      100 || 0,
+  conversionRate:
+    (insights.filter((i) => i.type === "conversion").length / insights.length) *
+      100 || 0,
+});
+
+const calculateChange = (current: number, previous?: number) =>
+  previous ? Number((((current - previous) / previous) * 100).toFixed(1)) : 0;
+
+const formatDuration = (seconds: number) => {
+  const mins = Math.floor(seconds / 60);
+  const secs = Math.floor(seconds % 60);
+  return `${mins}m ${secs.toString().padStart(2, "0")}s`;
+};
+
+const calculateDurationChange = (current: number, previous?: number) => {
+  if (!previous) return "+0m 00s";
+  const diff = current - previous;
+  return `${diff >= 0 ? "+" : "-"}${formatDuration(Math.abs(diff))}`;
+};
 
 // Start server
 app.listen(PORT, () => {

@@ -2,6 +2,7 @@
 import { Groq } from "groq-sdk";
 import * as dotenv from "dotenv";
 import path from "path";
+import { DailyIssue } from "../types";
 
 // Use absolute path to resolve .env file
 dotenv.config({
@@ -202,4 +203,32 @@ export async function generateAISummary(insights: any[]): Promise<string> {
     console.error("Groq summary error:", error);
     return "Failed to generate summary";
   }
+}
+
+export async function generateDailyIssues(
+  insights: any[]
+): Promise<DailyIssue[]> {
+  const completion = await groqClient.chat.completions.create({
+    messages: [
+      {
+        role: "system",
+        content: `Analyze these user insights and return top 5 issues in JSON format:
+      [{
+        "issue": "short description",
+        "impact": "High/Medium/Low",
+        "confidence": 0-100
+      }]`,
+      },
+      {
+        role: "user",
+        content: JSON.stringify(insights),
+      },
+    ],
+    model: "llama-3.3-70b-versatile",
+    response_format: { type: "json_object" },
+    temperature: 0.3,
+  });
+
+  const content = completion.choices[0].message.content || "{}";
+  return JSON.parse(content).issues || [];
 }

@@ -46,12 +46,15 @@ import { useAuth } from "@/context/AuthContext";
 import { db } from "@/utils/firebase/firebase";
 import {
   collection,
+  doc,
+  getDoc,
   getDocs,
   limit,
   onSnapshot,
   orderBy,
   query,
 } from "firebase/firestore";
+import { TopIssuesCard } from "@/components/dashboard/TopIssueCard";
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -62,6 +65,9 @@ const Dashboard = () => {
   // Overview tab
   const [summary, setSummary] = useState<string | null>(null);
   const [summaryLoading, setSummaryLoading] = useState(false);
+  const [issues, setIssues] = useState([]);
+  const [cooldown, setCooldown] = useState(0);
+  const [loading, setLoading] = useState(false);
 
   // Insights tab
   const [insights, setInsights] = useState<any[]>([]);
@@ -71,7 +77,7 @@ const Dashboard = () => {
   // Fetch summary for the current integration
   const fetchSummary = useCallback(async () => {
     if (!currentIntegrationId || !user?.uid) return;
-  
+
     try {
       const analyticsRef = collection(
         db,
@@ -79,7 +85,7 @@ const Dashboard = () => {
       );
       const q = query(analyticsRef, orderBy("timestamp", "desc"), limit(1));
       const snapshot = await getDocs(q);
-  
+
       if (!snapshot.empty) {
         const latestAnalytics = snapshot.docs[0].data();
         setSummary(latestAnalytics.summary || null);
@@ -93,16 +99,19 @@ const Dashboard = () => {
   const handleRefreshSummary = async () => {
     setSummaryLoading(true);
     try {
-      const response = await fetch(`${import.meta.env.VITE_SERVER_BACKEND_URL}/api/generate-summary`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          integrationId: currentIntegrationId,
-          uid: user?.uid
-        })
-      });
-  
-      if (!response.ok) throw new Error('Failed to generate summary');
+      const response = await fetch(
+        `${import.meta.env.VITE_SERVER_BACKEND_URL}/api/generate-summary`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            integrationId: currentIntegrationId,
+            uid: user?.uid,
+          }),
+        }
+      );
+
+      if (!response.ok) throw new Error("Failed to generate summary");
       await fetchSummary();
     } catch (error) {
       console.error("Summary refresh error:", error);
@@ -185,8 +194,8 @@ const Dashboard = () => {
     fetchInsights();
   }, [fetchSummary, fetchInsights]);
 
-  // Refresh handler
-  const handleRefresh = async () => {
+  // Refresh handler AI Insights
+  const handleRefreshInsights = async () => {
     try {
       setIsLoading(true);
       setError(null);
@@ -290,7 +299,7 @@ const Dashboard = () => {
           </ToggleGroup>
         </div>
 
-        <MetricsOverview />
+        <MetricsOverview integrationId={currentIntegrationId} />
 
         <Tabs defaultValue="overview" className="w-full">
           <TabsList className="grid w-full md:w-auto grid-cols-3 md:grid-cols-3">
@@ -321,47 +330,16 @@ const Dashboard = () => {
                   <CardDescription>User metrics over time</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <TrendChart />
+                  {/* <TrendChart /> */}
+                    <div className="flex items-center text-center justify-center h-32 text-muted-foreground mt-[20%]">
+                    No data available yet
+                    <br />
+                    (Only display when there are enough events)
+                    </div>
                 </CardContent>
               </Card>
 
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="flex items-center">
-                    <AlertTriangle className="h-5 w-5 mr-2" />
-                    Top Issues
-                  </CardTitle>
-                  <CardDescription>By impact severity</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Issue</TableHead>
-                        <TableHead className="text-right">Impact</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      <TableRow>
-                        <TableCell>Form abandonment</TableCell>
-                        <TableCell className="text-right">High</TableCell>
-                      </TableRow>
-                      <TableRow>
-                        <TableCell>Rage clicks on header</TableCell>
-                        <TableCell className="text-right">Medium</TableCell>
-                      </TableRow>
-                      <TableRow>
-                        <TableCell>Button visibility</TableCell>
-                        <TableCell className="text-right">Medium</TableCell>
-                      </TableRow>
-                      <TableRow>
-                        <TableCell>Page load time</TableCell>
-                        <TableCell className="text-right">Low</TableCell>
-                      </TableRow>
-                    </TableBody>
-                  </Table>
-                </CardContent>
-              </Card>
+              <TopIssuesCard integrationId={currentIntegrationId} />
             </div>
           </TabsContent>
 
@@ -437,7 +415,7 @@ const Dashboard = () => {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={handleRefresh}
+                    onClick={handleRefreshInsights}
                     disabled={isLoading}
                   >
                     {isLoading ? "Generating..." : "Refresh Insights"}

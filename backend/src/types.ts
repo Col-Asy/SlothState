@@ -44,3 +44,13 @@ export interface Insight {
   userId: string;
   analyticsId: string;
 }
+
+export interface DailyIssue {
+  date: string;
+  issues: Array<{
+    issue: string;
+    impact: "High" | "Medium" | "Low";
+    confidence: number;
+  }>;
+  createdAt: Timestamp;
+}
