@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import {
   Card,
@@ -22,6 +22,7 @@ import {
   AlertTriangle,
   BarChart3,
   Clock,
+  Loader2,
   Users,
   Video,
 } from "lucide-react";
@@ -43,13 +44,25 @@ import {
 } from "@/components/ui/select";
 import { useAuth } from "@/context/AuthContext";
 import { db } from "@/utils/firebase/firebase";
-import { collection, onSnapshot } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  limit,
+  onSnapshot,
+  orderBy,
+  query,
+} from "firebase/firestore";
 
 const Dashboard = () => {
   const { user } = useAuth();
   const [integrations, setIntegrations] = useState<any[]>([]);
   const [currentIntegrationId, setCurrentIntegrationId] = useState<string>("");
   const [dateRange, setDateRange] = useState<string>("7d");
+
+  // Insights tab
+  const [insights, setInsights] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   // Fetch integrations for the current user in real-time
   useEffect(() => {
@@ -72,6 +85,87 @@ const Dashboard = () => {
     // eslint-disable-next-line
   }, [user?.uid]);
 
+  // Fetch latest analytics ID and insights
+  const fetchInsights = async () => {
+    // console.log("[DEBUG] Starting insights fetch");
+    try {
+      // 1. Get latest analyticsId
+      const analyticsRef = collection(
+        db,
+        `users/${user.uid}/integrations/${currentIntegrationId}/analytics`
+      );
+      const q = query(analyticsRef, orderBy("timestamp", "desc"), limit(1));
+      // console.log("[DEBUG] Analytics query:", q);
+
+      const analyticsSnapshot = await getDocs(q);
+      // console.log("[DEBUG] Analytics snapshot:", analyticsSnapshot.docs);
+
+      if (analyticsSnapshot.empty) {
+        // console.log("[DEBUG] No analytics documents found");
+        setInsights([]);
+        return;
+      }
+
+      const analyticsId = analyticsSnapshot.docs[0].id;
+      // console.log("[DEBUG] Latest analyticsId:", analyticsId);
+
+      // 2. Fetch insights
+      const insightsRef = collection(
+        db,
+        `users/${user.uid}/integrations/${currentIntegrationId}/analytics/${analyticsId}/insights`
+      );
+      // console.log("[DEBUG] Insights ref path:", insightsRef.path);
+
+      const insightsSnapshot = await getDocs(insightsRef);
+      // console.log("[DEBUG] Insights docs:", insightsSnapshot.docs);
+
+      const insightsData = insightsSnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      // console.log("[DEBUG] Mapped insights:", insightsData);
+
+      setInsights(insightsData);
+    } catch (error) {
+      // console.error("[DEBUG] Fetch error:", error);
+      setError("Failed to load insights");
+    }
+  };
+
+  // Initial load
+  useEffect(() => {
+    fetchInsights();
+  }, [fetchInsights]);
+
+  // Refresh handler
+  const handleRefresh = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      const response = await fetch(
+        `${import.meta.env.VITE_SERVER_BACKEND_URL}/api/generate-insights`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            integrationId: currentIntegrationId,
+            dateRange: "7d",
+            uid: user?.uid,
+          }),
+        }
+      );
+
+      if (!response.ok) throw new Error("Refresh failed");
+      await fetchInsights(); // Reload after generation
+    } catch (err) {
+      setError("Failed to refresh insights");
+      console.error(err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   // Show empty state if no integrations
   if (integrations.length === 0) {
     return (
@@ -80,7 +174,8 @@ const Dashboard = () => {
           <div className="max-w-md space-y-4">
             <h1 className="text-2xl font-bold">No Integrations Found</h1>
             <p className="text-muted-foreground">
-              Get started by connecting your first website to track user interactions.
+              Get started by connecting your first website to track user
+              interactions.
             </p>
             <Button asChild>
               <Link to="/dashboard/integrations">Add Integration</Link>
@@ -150,7 +245,7 @@ const Dashboard = () => {
         <MetricsOverview />
 
         <Tabs defaultValue="overview" className="w-full">
-          <TabsList className="grid w-full md:w-auto grid-cols-4 md:grid-cols-4">
+          <TabsList className="grid w-full md:w-auto grid-cols-3 md:grid-cols-3">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             {/* <TabsTrigger value="sessions">Sessions</TabsTrigger> */}
             <TabsTrigger value="heatmaps">Heatmaps</TabsTrigger>
@@ -270,54 +365,65 @@ const Dashboard = () => {
 
           {/* Heatmap Tab */}
           <TabsContent value="heatmaps" className="mt-6">
-            <InteractionHeatmap />
+            <InteractionHeatmap
+              integrationId={currentIntegrationId}
+              dateRange={dateRange}
+            />
           </TabsContent>
 
           {/* AI Insights Tab */}
           <TabsContent value="insights" className="space-y-6 mt-6">
             <Card>
               <CardHeader>
-                <CardTitle>AI-Generated Insights</CardTitle>
-                <CardDescription>
-                  Automated analysis of user behavior patterns
-                </CardDescription>
+                <div className="flex justify-between items-center">
+                  <div>
+                    <CardTitle>AI-Generated Insights</CardTitle>
+                    <CardDescription>
+                      Automated analysis of user behavior patterns
+                    </CardDescription>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleRefresh}
+                    disabled={isLoading}
+                  >
+                    {isLoading ? "Generating..." : "Refresh Insights"}
+                  </Button>
+                </div>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="p-4 border rounded-lg bg-muted/50">
-                  <h3 className="font-medium mb-2">Conversion Optimization</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Users are abandoning the checkout form at the payment method
-                    selection step. Consider simplifying this step or providing
-                    more payment options.
-                  </p>
-                  <div className="mt-2 text-xs text-right text-muted-foreground">
-                    Confidence: 92%
+                {isLoading ? (
+                  <div className="flex items-center justify-center h-32">
+                    <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
                   </div>
-                </div>
-
-                <div className="p-4 border rounded-lg bg-muted/50">
-                  <h3 className="font-medium mb-2">Navigation Friction</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Multiple users are experiencing difficulty finding the
-                    product categories menu. Recommend making the menu more
-                    prominent on mobile devices.
-                  </p>
-                  <div className="mt-2 text-xs text-right text-muted-foreground">
-                    Confidence: 87%
+                ) : error ? (
+                  <div className="text-center py-6 text-destructive">
+                    {error}{" "}
+                    <Button variant="ghost" onClick={fetchInsights}>
+                      Retry
+                    </Button>
                   </div>
-                </div>
-
-                <div className="p-4 border rounded-lg bg-muted/50">
-                  <h3 className="font-medium mb-2">Content Engagement</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Users spend significantly more time on pages with video
-                    content. Consider adding more video explanations to key
-                    product pages.
-                  </p>
-                  <div className="mt-2 text-xs text-right text-muted-foreground">
-                    Confidence: 79%
+                ) : insights.length === 0 ? (
+                  <div className="text-center py-6 text-muted-foreground">
+                    No insights available. Click "Refresh Insights" to generate.
                   </div>
-                </div>
+                ) : (
+                  insights.map((insight) => (
+                    <div
+                      key={insight.id}
+                      className="p-4 border rounded-lg bg-muted/50"
+                    >
+                      <h3 className="font-medium mb-2">{insight.title}</h3>
+                      <p className="text-sm text-muted-foreground">
+                        {insight.content}
+                      </p>
+                      <div className="mt-2 text-xs text-right text-muted-foreground">
+                        Confidence: {insight.confidence}%
+                      </div>
+                    </div>
+                  ))
+                )}
               </CardContent>
             </Card>
           </TabsContent>

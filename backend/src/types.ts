@@ -1,6 +1,8 @@
+import { Timestamp } from "firebase-admin/firestore";
+
 // backend/src/types.ts
 export interface BaseEvent {
-  timestamp: string;
+  timestamp: Timestamp;
   sessionId: string;
   url: string;
 }
@@ -32,3 +34,13 @@ export interface SessionData {
 }
 
 export type UserEvent = ClickEvent | ScrollEvent;
+
+export interface Insight {
+  title: string;
+  content: string;
+  confidence: number;
+  timestamp: Timestamp;
+  integrationId: string;
+  userId: string;
+  analyticsId: string;
+}

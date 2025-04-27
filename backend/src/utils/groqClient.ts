@@ -1,12 +1,12 @@
 // backend/src/utils/groqClient.ts
 import { Groq } from "groq-sdk";
 import * as dotenv from "dotenv";
-import path from 'path';
+import path from "path";
 
 // Use absolute path to resolve .env file
-dotenv.config({ 
-  path: path.resolve(__dirname, '../../.env'),
-  debug: true // Temporarily enable to verify loading
+dotenv.config({
+  path: path.resolve(__dirname, "../../.env"),
+  debug: true, // Temporarily enable to verify loading
 });
 
 // Initialize Groq client
@@ -141,4 +141,40 @@ function formatEventsForGroq(events: any[]): string {
     null,
     2
   );
+}
+
+export function convertAnalysisToInsights(
+  analysis: AnalysisResult
+): Array<{ title: string; content: string; confidence: number }> {
+  const insights = [];
+
+  // Convert optimizations
+  for (const opt of analysis.optimizations) {
+    insights.push({
+      title: `${opt.area} Optimization`,
+      content: `Issue: ${opt.issue}\nSuggestion: ${opt.suggestion}`,
+      confidence:
+        opt.priority === "high" ? 90 : opt.priority === "medium" ? 75 : 60,
+    });
+  }
+
+  // Convert behavior patterns
+  for (const pattern of analysis.behaviorPatterns) {
+    insights.push({
+      title: `Behavior Pattern: ${pattern.pattern}`,
+      content: pattern.description,
+      confidence: Math.round(pattern.confidence * 100),
+    });
+  }
+
+  // Convert friction points
+  for (const friction of analysis.frictionPoints) {
+    insights.push({
+      title: `Friction Point: ${friction.location}`,
+      content: `${friction.description}\nRecommendation: ${friction.recommendation}`,
+      confidence: 100 - friction.severity * 10,
+    });
+  }
+
+  return insights;
 }

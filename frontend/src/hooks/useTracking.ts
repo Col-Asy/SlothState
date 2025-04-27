@@ -10,7 +10,7 @@ export const useTracking = () => {
     eventBuffer.current.push({
       ...event,
       sessionId: sessionId,
-      timestamp: new Date().toISOString(),
+      timestamp: Date.now(),
       url: window.location.href,
     });
 
