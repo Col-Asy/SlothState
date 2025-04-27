@@ -178,3 +178,28 @@ export function convertAnalysisToInsights(
 
   return insights;
 }
+
+export async function generateAISummary(insights: any[]): Promise<string> {
+  try {
+    const completion = await groqClient.chat.completions.create({
+      messages: [
+        {
+          role: "system",
+          content:
+            "You are a data analyst. Generate a concise 3-5 bullet point summary of these user insights. Focus on key patterns and recommendations.",
+        },
+        {
+          role: "user",
+          content: JSON.stringify(insights),
+        },
+      ],
+      model: "llama-3.3-70b-versatile",
+      temperature: 0.2,
+    });
+
+    return completion.choices[0]?.message?.content || "No summary generated";
+  } catch (error) {
+    console.error("Groq summary error:", error);
+    return "Failed to generate summary";
+  }
+}

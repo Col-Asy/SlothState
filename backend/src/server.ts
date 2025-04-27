@@ -7,6 +7,7 @@ import { SessionData, UserEvent } from "./types";
 import {
   analyzeUserInteractions,
   convertAnalysisToInsights,
+  generateAISummary,
 } from "./utils/groqClient";
 import admin from "firebase-admin";
 import { Timestamp } from "firebase-admin/firestore";
@@ -261,8 +262,6 @@ app.post("/api/generate-insights", async (req: Request, res: Response) => {
     const { integrationId, dateRange, uid } = req.body;
     const userId = uid;
 
-    
-
     // 1. Fetch tracking data
     const startDate = getStartDate(dateRange);
     const trackingRef = db.collection(
@@ -320,6 +319,41 @@ app.post("/api/generate-insights", async (req: Request, res: Response) => {
       error: "Failed to generate insights",
       details: error instanceof Error ? error.message : "Unknown error",
     });
+  }
+});
+
+app.post("/api/generate-summary", async (req: Request, res: Response) => {
+  try {
+    const { integrationId, uid: userId } = req.body;
+
+    // 1. Get latest analytics data
+    const analyticsRef = db.collection(
+      `users/${userId}/integrations/${integrationId}/analytics`
+    );
+    const snapshot = await analyticsRef
+      .orderBy("timestamp", "desc")
+      .limit(1)
+      .get();
+
+    if (snapshot.empty) {
+      res.status(404).json({ error: "No analytics data found" });
+    }
+
+    const latestAnalytics = snapshot.docs[0];
+    const insightsRef = latestAnalytics.ref.collection("insights");
+    const insightsSnapshot = await insightsRef.get();
+    const insights = insightsSnapshot.docs.map((doc) => doc.data());
+
+    // 2. Generate summary with Groq
+    const summary = await generateAISummary(insights);
+
+    // 3. Update analytics document with summary
+    await latestAnalytics.ref.update({ summary });
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error("Summary generation error:", error);
+    res.status(500).json({ error: "Failed to generate summary" });
   }
 });
 

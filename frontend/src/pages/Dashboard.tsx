@@ -59,10 +59,57 @@ const Dashboard = () => {
   const [currentIntegrationId, setCurrentIntegrationId] = useState<string>("");
   const [dateRange, setDateRange] = useState<string>("7d");
 
+  // Overview tab
+  const [summary, setSummary] = useState<string | null>(null);
+  const [summaryLoading, setSummaryLoading] = useState(false);
+
   // Insights tab
   const [insights, setInsights] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Fetch summary for the current integration
+  const fetchSummary = useCallback(async () => {
+    if (!currentIntegrationId || !user?.uid) return;
+  
+    try {
+      const analyticsRef = collection(
+        db,
+        `users/${user.uid}/integrations/${currentIntegrationId}/analytics`
+      );
+      const q = query(analyticsRef, orderBy("timestamp", "desc"), limit(1));
+      const snapshot = await getDocs(q);
+  
+      if (!snapshot.empty) {
+        const latestAnalytics = snapshot.docs[0].data();
+        setSummary(latestAnalytics.summary || null);
+      }
+    } catch (error) {
+      console.error("Error fetching summary:", error);
+    }
+  }, [currentIntegrationId, user?.uid]);
+
+  // Refresh summary handler
+  const handleRefreshSummary = async () => {
+    setSummaryLoading(true);
+    try {
+      const response = await fetch(`${import.meta.env.VITE_SERVER_BACKEND_URL}/api/generate-summary`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          integrationId: currentIntegrationId,
+          uid: user?.uid
+        })
+      });
+  
+      if (!response.ok) throw new Error('Failed to generate summary');
+      await fetchSummary();
+    } catch (error) {
+      console.error("Summary refresh error:", error);
+    } finally {
+      setSummaryLoading(false);
+    }
+  };
 
   // Fetch integrations for the current user in real-time
   useEffect(() => {
@@ -134,8 +181,9 @@ const Dashboard = () => {
 
   // Initial load
   useEffect(() => {
+    fetchSummary();
     fetchInsights();
-  }, [fetchInsights]);
+  }, [fetchSummary, fetchInsights]);
 
   // Refresh handler
   const handleRefresh = async () => {
@@ -215,12 +263,12 @@ const Dashboard = () => {
         </div>
 
         {/* Show the selected integration ID at the top */}
-        {currentIntegrationId && (
+        {/* {currentIntegrationId && (
           <div className="mb-4 text-muted-foreground">
             <span className="font-semibold">Active Integration ID:</span>{" "}
             {currentIntegrationId}
           </div>
-        )}
+        )} */}
 
         <div className="flex items-center justify-between">
           <div>
@@ -255,8 +303,12 @@ const Dashboard = () => {
           {/* Overview Tab */}
           <TabsContent value="overview" className="space-y-6 mt-6">
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-2">
-              <AnalyticsSummaryCard />
-              <FrictionPointsCard />
+              <AnalyticsSummaryCard
+                summary={summary}
+                loading={summaryLoading}
+                onRefresh={handleRefreshSummary}
+              />
+              <FrictionPointsCard insights={insights} />
             </div>
 
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
